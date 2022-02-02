@@ -1,0 +1,238 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% load static %}
+  <title>{{tank.nazev}}</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="{% static 'styly-tank.css' %}">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+ 
+    <script src={% static 'javascript-wotkopedie.js' %}></script>
+
+</head>
+<body>
+<h1>{{tank.nazev}}</h1>
+
+<p id="nabijeni">{{tank.nabijeni}}</p>
+{% if tank.nabijeni2 > 0%}
+    <p id="nabijeni2">{{tank.nabijeni2}}</p>
+    {% if tank.nabijeni3 > 0%}
+        <p id="nabijeni3">{{tank.nabijeni3}}</p>
+        {% if tank.nabijeni4 > 0%}
+            <p id="nabijeni4">{{tank.nabijeni4}}</p>
+        {% endif %}
+    {% endif %}
+{% endif %}
+<p id="zamerovani">{{tank.zamereni}}</p>
+<p id="presnost">{{tank.presnost}}</p>
+<p id="dohled">{{tank.dohled}}</p>
+
+<div class="obrazky">
+   {% include "equipment.html" %}
+   {% include "bonds.html" %}
+</div>
+  {% if tank.nabijeni2 == 0 %}
+    {% include "firePower.html" %}
+  {% else %}
+    {% include "firePowerHybrid.html" %}
+  {% endif %}
+
+{% if tank.vicedel == '1' %}
+    <form action=''>
+        <select id='dela' class='vyber'>
+        <option class='moznost' value='Delo1'>{{foundSecondGuns.delo1}}</option>
+        <option class='moznost' value='Delo2'>{{foundSecondGuns.delo2}}</option>
+        </select>
+    </form>
+{% endif %}
+
+<table id="mobilita">
+    <tr>
+      <tr><th colspan="4" id="vrsek">Mobilita</th></tr>
+    </tr>
+    <tr>
+        <th>Maximální rychlost:</th>
+        <td>{{tank.rychlost}} km/h</td>
+    </tr>
+    <tr>
+      <th>Couvání:</th>
+      <td>{{tank.couvani}} km/h</td>
+  </tr>
+  <tr>
+      <th>Výkon:</th>
+      <td>{{tank.vykon}} koní</td>
+  </tr>
+  <tr>
+      <th>Počet koní / tuna:</th>
+      <td>{{tank.konetuna}}</td>
+  </tr>
+  <tr>
+      <th>Otáčení tanku:</th>
+      <td>{{tank.otacenikorba}} °/s</td>
+  </tr>
+  <tr>
+      <th>Elevace:</th>
+      <td>{{tank.elevace}} °</td>
+  </tr>
+  <tr>
+    <th>Deprese:</th>
+    <td>-{{tank.deprese}} °</td>
+  </tr>
+  <tr>
+    <th>Otáčení věže:</th>
+    {% if tank.otacenivez == "Není věž" %}
+        <td>{{tank.otacenivez}}</td>
+    {% else %}
+        <td>{{tank.otacenivez}} °/s</td>
+    {% endif %}
+  </tr>
+</table>
+
+<table id="zbytek">
+    <tr>
+      <tr><th colspan="4" id="vrsek">Zbytek</th></tr>
+    </tr>
+    <tr>
+        <th>Pancíř korby:</th>
+        <td>{{tank.korbapred}} mm / {{tank.korbabok}} mm / {{tank.korbazad}} mm</td>
+    </tr>
+    <tr>
+      <th>Pancíř věže:</th>
+      <td>{{tank.vezpred}} mm / {{tank.vezbok}} mm / {{tank.vezzad}} mm</td>
+  </tr>
+  <tr>
+      <th>Počet životů:</th>
+      <td>{{tank.zivoty}} </td>
+  </tr>
+  <tr>
+      <th>Hmotnost:</th>
+      <td>{{tank.hmotnost}} t</td>
+  </tr>
+  <tr>
+      <th>Maximální náklad:</th>
+      <td>{{tank.naklad}} t</td>
+  </tr>
+  <tr>
+      <th>Dohled:</th>
+      <td id="binoOp">{{tank.dohled}}</td>
+  </tr>
+  <tr>
+    <th>Binokulární dalekohled s vybavením:</th>
+    <td id="bino"></td>
+  </tr>
+  <tr>
+    <th>Cena:</th>
+    <td>{{tank.cena}}</td>
+  </tr>
+  <tr>
+    <th>Náklady na výzkum:</th>
+    <td>{{tank.vyzkum}}</td>
+  </tr>
+</table>
+
+{% include "searching.html" %}
+<div id="tankList">
+</div>
+
+<a class="odkaz" href="http://127.0.0.1:8000/">←Zpět na úvodní stránku</a>
+<script>
+    $("#vyhledat").keyup(function() {
+        $("ul").remove();
+        if ($("#vyhledat").val().length > 0) {
+        $.ajax({
+            type: "GET",
+            url: "",
+            dataType: "json",
+            data: {
+                text : $("#vyhledat").val()
+            },
+            success: function(response) {
+                var parsed = JSON.parse(response.foundTanks);
+                if (Object.keys(parsed).length > 0) {
+                    var ul = document.createElement("UL");
+                    for (i = 0; i < Object.keys(parsed).length; i++) {
+                        var name = parsed[i].fields.nazev;
+                        var a = document.createElement('a');
+                        var li = document.createElement("LI");
+                        li.setAttribute('class', 'link');
+                        li.innerHTML = name;
+                        a.setAttribute('href', parsed[i].fields.odkaz);
+                        a.appendChild(li);
+                        ul.appendChild(a);
+                    }
+                    document.getElementById("tankList").appendChild(ul);
+                    $("ul").show();
+                }
+            }
+        });
+    }
+    else {
+        $("ul").fadeOut(1);
+    }
+    });
+
+    var totalLength = 0;
+    var shellsLen = 0;
+
+    $("#dela").change(function() {
+        const shells = ["{{foundSecondGuns.naboj1}}", "{{foundSecondGuns.naboj2}}", "{{foundSecondGuns.naboj3}}"];
+        const penetrations = ["{{foundSecondGuns.penetrace1}}", "{{foundSecondGuns.penetrace2}}", "{{foundSecondGuns.penetrace3}}"];
+        const damages = ["{{foundSecondGuns.poskozeni1}}", "{{foundSecondGuns.poskozeni2}}", "{{foundSecondGuns.poskozeni3}}"]
+        const originalShells = ["{{tank.naboj1}}", "{{tank.naboj2}}", "{{tank.naboj3}}"];
+        const originalPenetrations = ["{{tank.prubojnost1}}", "{{tank.prubojnost2}}", "{{tank.prubojnost3}}"];
+        const originalDamages = ["{{tank.poskozeni1}}", "{{tank.poskozeni2}}", "{{tank.poskozeni3}}"];
+        var tr = $("tr").eq(2).children();
+        for (i = 0; i < shells.length; i++) {
+            if (shells[i] != "None") {
+                shellsLen++;
+            }
+        }
+        if ($("#dela").val() == "Delo2") {
+            for (i = 1; i < tr.length; i++) {
+                if ($("tr").eq(2).children().eq(i).text() != "") {
+                    totalLength++;
+                }
+            }
+            $("#nabijak, #nabijeni").text('{{foundSecondGuns.nabijeni}}');
+            $("#zamerovak, #zamerovani").text('{{foundSecondGuns.zamereni}}');
+            $("#Presnost, #presnost").text('{{foundSecondGuns.presnost}}');
+            loadVariables();
+            if (shellsLen >= totalLength) {
+                for (i = 1; i < shellsLen + 1; i++) {
+                    $("tr").eq(2).children().eq(i).text(shells[i-1]);
+                    $("tr").eq(3).children().eq(i).text(penetrations[i-1] + " mm");
+                    $("tr").eq(4).children().eq(i).text(damages[i-1]);
+                }
+            }
+            else {
+                for (i = 1; i < shellsLen + 1; i++) {
+                    $("tr").eq(2).children().eq(i).text(shells[i-1]);
+                    $("tr").eq(3).children().eq(i).text(penetrations[i-1] + " mm");
+                    $("tr").eq(4).children().eq(i).text(damages[i-1]);
+                }
+                for (i = shellsLen + 1; i < 4; i++) {
+                    $("tr").eq(2).children().eq(i).text('');
+                    $("tr").eq(3).children().eq(i).text('');
+                    $("tr").eq(4).children().eq(i).text('');
+                }
+            }
+        }
+        else {
+            $("#nabijak, #nabijeni").text('{{tank.nabijeni}}');
+            $("#zamerovak, #zamerovani").text('{{tank.zamereni}}');
+            $("#Presnost, #presnost").text('{{tank.presnost}}');
+            loadVariables();
+            if (shellsLen >= totalLength) {
+                for (i = 1; i < totalLength + 1; i++) {
+                    $("tr").eq(2).children().eq(i).text(originalShells[i-1]);
+                    $("tr").eq(3).children().eq(i).text(originalPenetrations[i-1] + " mm");
+                    $("tr").eq(4).children().eq(i).text(originalDamages[i-1]);
+                }
+            }
+            totalLength = 0;
+            shellsLen = 0;
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+﻿<table id="palba">
+    <tr>
+    <tr><th colspan="5" id="vrsek">Palebná síla</th></tr>
+    </tr>
+    <tr>
+        <th></th>
+        <td>{{tank.naboj1}}</td>
+        {% if tank.naboj2 != None %}
+            <td>{{tank.naboj2}}</td>
+        {% else %}
+            <td></td>
+        {% endif %}
+        {% if tank.naboj3 != None %}
+            <td>{{tank.naboj3}}</td>
+        {% else %}
+            <td></td>
+        {% endif %}
+        <td></td>
+    </tr>
+    <tr>
+        <th>Průbojnost:</th>
+        <td>{{tank.prubojnost1}} mm</td>
+        {% if tank.prubojnost2 != None %}
+            <td>{{tank.prubojnost2}} mm</td>
+        {% else %}
+            <td></td>
+        {% endif %}
+        {% if tank.prubojnost3 != None %}
+            <td>{{tank.prubojnost3}} mm</td>
+        {% else %}
+            <td></td>
+        {% endif %}
+        <td></td>
+    </tr>
+    <tr>
+        <th>Poškození:</th>
+        <td>{{tank.poskozeni1}}</td>
+        {% if tank.poskozeni2 != None %}
+            <td>{{tank.poskozeni2}}</td>
+        {% else %}
+            <td></td>
+        {% endif %}
+        {% if tank.poskozeni3 != None %}
+            <td>{{tank.poskozeni3}}</td>
+        {% else %}
+            <td></td>
+        {% endif %}
+        <td></td>
+    </tr>
+        <tr>
+            <th>Počet ran v zásobníku</th>
+            <td>{{tank.pocetran}}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>Nabíjení mezi ranami:</th>
+            <td>{{tank.mezinabijeni}} s</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>Čas nabití zásobníku:</th>
+            <td id="nabijak">{{tank.nabijeni}}</td> <!-- Fixnout i pro ostatní tabulky -->
+            <td id="nabijak2">{{tank.nabijeni2}}</td>
+            {% if tank.nabijeni3 > 0 %}
+                <td id="nabijak3">{{tank.nabijeni3}}</td>
+                {% if tank.nabijeni4 > 0 %}
+                    <td id="nabijak4">{{tank.nabijeni4}}</td>
+                {% endif %}
+            {% endif %}
+        </tr>
+    <tr>
+        <th>Čas zaměření:</th>
+        <td id="zamerovak">{{tank.zamereni}}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <th>Přesnost:</th>
+        <td id="Presnost">{{tank.presnost}}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+</table>

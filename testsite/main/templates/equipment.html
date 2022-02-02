@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+    {% load static %}
+    <div id='vypocty'>
+        <div class="column">
+            <input type="checkbox" id="Ikonabratri" onclick="calculate();" />
+            <label for="Ikonabratri" class="nonBond"><img src="{% static 'gallery/BIA.png' %}"/></label>
+        </div>
+        <div class="column">
+            <input type="checkbox" id="Ikonaventilace" onclick="calculate();" />
+            <label for="Ikonaventilace" class="nonBond"><img src="{% static 'gallery/ventilace.png' %}"/></label>
+        </div>
+        <div class="column">
+            <input type="checkbox" id="Ikonabino" onclick="calculate();">
+            <label for="Ikonabino" class="nonBond"><img src="{% static 'gallery/bino.png' %}"/></label>
+        </div>
+        <div class="column">
+            <input type="checkbox" id="Ikonaoptika" onclick="calculate();changeFilter(IkonaoptikaBond, 1, Ikonaoptika)"/>
+            <label for="Ikonaoptika" class="nonBond"><img src="{% static 'gallery/optika.png' %}"/></label>
+        </div>
+        <div class="column">
+            <input type="checkbox" id="Ikonazamerovak" onclick="calculate()" />
+            <label for="Ikonazamerovak" class="nonBond"><img src="{% static 'gallery/zamerovak.png' %}"/></label>
+        </div>
+        {% if tank.pocetran == 0 %}
+        <div class="column">
+            <input type="checkbox" id="Ikonanabijak" onclick="calculate()" />
+            <label for="Ikonanabijak" class="nonBond"><img src="{% static 'gallery/nabijak.png' %}"/></label>
+        </div>
+        {% endif %} 
+</html>
