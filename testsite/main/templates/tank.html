@@ -12,6 +12,10 @@
 </head>
 <body>
 <h1>{{tank.nazev}}</h1>
+<div class="compare-button">
+    <button class="btn btn-primary" id="addToComparison" onclick="addToComparison({{ tank.id }})">Přidat do porovnání</button></a>
+</div>
+<div>Celkem <span id="comparisonCount">{{ totalTanksInComparison }}</span>/2 tanků v porovnání</div>
 
 <p id="nabijeni">{{tank.nabijeni}}</p>
 {% if tank.nabijeni2 > 0%}
@@ -134,8 +138,21 @@
 <div id="tankList">
 </div>
 
-<a class="odkaz" href="http://127.0.0.1:8000/">←Zpět na úvodní stránku</a>
+<a class="odkaz" href="/">←Zpět na úvodní stránku</a>
 <script>
+
+    window.onload = checkTotalNumOfTanksInComparison()
+    
+    function checkTotalNumOfTanksInComparison() {
+        tanksInComparisonNum = parseInt(document.getElementById("comparisonCount").innerHTML)
+        if (tanksInComparisonNum >= 2) {
+            document.getElementById("addToComparison").setAttribute("disabled", true)
+        }
+        else {
+            document.getElementById("addToComparison").removeAttribute("disabled")
+        }
+    }
+
     $("#vyhledat").keyup(function() {
         $("ul").remove();
         if ($("#vyhledat").val().length > 0) {
@@ -233,6 +250,22 @@
             shellsLen = 0;
         }
     });
+
+    function addToComparison(tankId) {
+        $.ajax({
+            type: "GET",
+            url: "",
+            dataType: "json",
+            data: {
+                tankId: tankId,
+            },
+            success: response => {
+                console.log(response.msg)
+                document.getElementById("comparisonCount").innerHTML = response.totalTanksInComparison
+                checkTotalNumOfTanksInComparison()
+            }
+        })
+    }
 </script>
 </body>
 </html>

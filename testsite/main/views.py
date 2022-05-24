@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.core import serializers
 from main.models import Tank
 from main.models import Dela
+from main.models import Comparison
 
 
 def fixLink(tanks):
@@ -12,10 +13,7 @@ def fixLink(tanks):
 
 
 def jsonConvert(queries):
-    allTankClasses = []
-    for i in range(0, 5):
-        x = Tank.objects.raw(queries[i])
-        allTankClasses.append(x)
+    allTankClasses = [Tank.objects.raw(query) for query in queries]
 
     for i in range(0, len(allTankClasses)):
         fixLink(allTankClasses[i])
@@ -31,11 +29,7 @@ def index(response):
     artys = []
     if response.is_ajax():
         tankClasses = ['lehke', 'stredni', 'tezke', 'stihace', 'artyny']
-        queries = []
-        print("here")
-        for tankClass in tankClasses:
-            queryToPush = f"SELECT * FROM tank WHERE Kategorie = '{tankClass}' "
-            queries.append(queryToPush)
+        queries = [f"SELECT * FROM tank WHERE Kategorie = '{tankClass}' " for tankClass in tankClasses]
         res1 = response.GET.get('n')
         res2 = response.GET.get('t')
         res3 = response.GET.get('p')
@@ -68,7 +62,7 @@ def index(response):
         return render(response, 'index.html', {'light': lightTanks, 'medium': mediumTanks, 'heavy': heavyTanks, 'tds': tankDestroyers, 'arty': artys})
 
 def show(response, link="#"):
-    tanciky = Tank.objects.raw('SELECT * FROM tank WHERE Prubojnost1 != %s', ['10000'])
+    tanciky = Tank.objects.raw('SELECT * FROM tank')
     index = 0
     tanksFound = []
     secondGuns = []
@@ -88,13 +82,25 @@ def show(response, link="#"):
             break
         index += 1
     if response.is_ajax():
-        print("zde")
-        whatToSearch = response.GET.get('text')
-        tanksFound = Tank.objects.filter(nazev__icontains=whatToSearch)
-        for tankFound in tanksFound:
-            tankFound.odkaz = tankFound.odkaz.split('/')[-1].lower()
-        tanksFound = serializers.serialize('json', tanksFound)
-        return JsonResponse({'foundTanks': tanksFound}, status = 200)
-    return render(response, 'tank.html', {'tank':tanciky[index], 'foundTanks': tanksFound, 'foundSecondGuns': secondGuns})
+        fetchedText = response.GET.get('text')
+        if fetchedText is not None:
+            tanksFound = Tank.objects.filter(nazev__icontains=fetchedText)
+            for tankFound in tanksFound:
+                tankFound.odkaz = tankFound.odkaz.split('/')[-1].lower()
+            tanksFound = serializers.serialize('json', tanksFound)
+            return JsonResponse({'foundTanks': tanksFound}, status = 200)
+        else:
+            fetchedText = response.GET.get('tankId')
+            newComparisonTank = Comparison(tankid = Tank.objects.get(id = int(fetchedText)))
+            newComparisonTank.save()
+            tanksInComparison = Comparison.objects.all().count()
+            return JsonResponse({'msg': 'OK', 'totalTanksInComparison': tanksInComparison}, status = 200)
+    tanksInComparison = Comparison.objects.all()
+    return render(response, 'tank.html', {'tank':tanciky[index], 'foundTanks': tanksFound, 'foundSecondGuns': secondGuns, 'totalTanksInComparison': tanksInComparison.count()})
+
+
+def compare(response):
+    return render(response, 'compare.html')
+
 # Create your views here.
 

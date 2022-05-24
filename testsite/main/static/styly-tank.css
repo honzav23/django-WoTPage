@@ -75,7 +75,10 @@ label {
   cursor:pointer;
   
 }
-h1 {position:absolute;font-weight:bold;color:black}
+h1 {
+    font-weight:bold;
+    color:black;
+}
 .obrazky {
     height:50%;
     width:100%;
@@ -170,7 +173,11 @@ input[type="checkbox"] {
  @media screen and (min-height:1080px) {
  body {background-size:1920px 1920px;}
  h2 {max-width:300px;}
- } 
+ }
+
+ .compare-button {
+     display:flex
+ }
 
    
 

@@ -225,7 +225,6 @@ class Tank(models.Model):
     cena = models.CharField(db_column='Cena', max_length=45, blank=True, null=True)  # Field name made lowercase.
     vyzkum = models.IntegerField(db_column='Vyzkum', blank=True, null=True)  # Field name made lowercase.
     odkaz = models.CharField(db_column='Odkaz', max_length=100, blank=True, null=True)  # Field name made lowercase.
-    product_status = models.CharField(max_length=1)
     vicedel = models.CharField(db_column='ViceDel', max_length=1, blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
@@ -241,3 +240,11 @@ class Tier(models.Model):
     class Meta:
         managed = False
         db_table = 'tier'
+
+class Comparison(models.Model):
+    id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
+    tankid = models.ForeignKey('Tank', models.DO_NOTHING, db_column='tankID')  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'comparison'
