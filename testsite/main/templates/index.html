@@ -95,7 +95,7 @@
                         <tr><th>Lehké tanky</th></tr>
                             {% for l in light %}
                                 <tr>
-                                    {% if l.status == "premko" %}
+                                    {% if l.status.status == "premko" %}
                                         <td id="premko"><a href="/tank/{{l.odkaz}}" class="link">{{l.nazev}}</a></td>
                                     {% else %}
                                         <td><a href="/tank/{{l.odkaz}}" class="link">{{l.nazev}}</a></td>
@@ -111,7 +111,7 @@
                         <tr><th>Střední tanky</th></tr>
                             {% for m in medium %}
                                 <tr>
-                                    {% if m.status == "premko" %}
+                                    {% if m.status.status == "premko" %}
                                         <td id="premko"><a href="/tank/{{m.odkaz}}" class="link">{{m.nazev}}</a></td>
                                     {% else %}
                                         <td><a href="/tank/{{m.odkaz}}" class="link">{{m.nazev}}</a></td>
@@ -127,7 +127,7 @@
                         <tr><th>Těžké tanky</th></tr>
                             {% for h in heavy %}
                                 <tr>
-                                    {% if h.status == "premko" %}
+                                    {% if h.status.status == "premko" %}
                                         <td id="premko"><a href="/tank/{{h.odkaz}}" class="link">{{h.nazev}}</a></td>
                                     {% else %}
                                         <td><a href="/tank/{{h.odkaz}}" class="link">{{h.nazev}}</a></td>
@@ -143,7 +143,7 @@
                         <tr><th>Stíhače tanků</th></tr>
                         {% for td in tds %}
                         <tr>
-                            {% if td.status == "premko" %}
+                            {% if td.status.status == "premko" %}
                                 <td id="premko"><a href="/tank/{{td.odkaz}}" class="link">{{td.nazev}}</a></td>
                             {% else %}
                                 <td><a href="/tank/{{td.odkaz}}" class="link">{{td.nazev}}</a></td>
@@ -159,7 +159,7 @@
                         <tr><th>Dělostřelectvo</th></tr>
                         {% for a in arty %}
                         <tr>
-                            {% if a.status == "premko"%}
+                            {% if a.status.status == "premko"%}
                                 <td id="premko"><a href="/tank/{{a.odkaz}}" class="link">{{a.nazev}}</a></td>
                             {% else %}
                                 <td><a href="/tank/{{a.odkaz}}" class="link">{{a.nazev}}</a></td>

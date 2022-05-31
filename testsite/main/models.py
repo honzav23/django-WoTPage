@@ -77,27 +77,27 @@ class AuthUserUserPermissions(models.Model):
         unique_together = (('user_id', 'permission_id'),)
 
 
-class Dela(models.Model):
-    id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    nazev = models.CharField(db_column='Nazev', max_length=100, blank=True, null=True)  # Field name made lowercase.
-    delo1 = models.CharField(db_column='Delo1', max_length=100, blank=True, null=True)  # Field name made lowercase.
-    delo2 = models.CharField(db_column='Delo2', max_length=100, blank=True, null=True)  # Field name made lowercase.
-    naboj1 = models.CharField(db_column='Naboj1', max_length=5, blank=True, null=True)  # Field name made lowercase.
-    naboj2 = models.CharField(db_column='Naboj2', max_length=5, blank=True, null=True)  # Field name made lowercase.
-    naboj3 = models.CharField(db_column='Naboj3', max_length=5, blank=True, null=True)  # Field name made lowercase.
-    penetrace1 = models.IntegerField(db_column='Penetrace1', blank=True, null=True)  # Field name made lowercase.
-    penetrace2 = models.IntegerField(db_column='Penetrace2', blank=True, null=True)  # Field name made lowercase.
-    penetrace3 = models.IntegerField(db_column='Penetrace3', blank=True, null=True)  # Field name made lowercase.
-    poskozeni1 = models.IntegerField(db_column='Poskozeni1', blank=True, null=True)  # Field name made lowercase.
-    poskozeni2 = models.IntegerField(db_column='Poskozeni2', blank=True, null=True)  # Field name made lowercase.
-    poskozeni3 = models.IntegerField(db_column='Poskozeni3', blank=True, null=True)  # Field name made lowercase.
-    nabijeni = models.FloatField(db_column='Nabijeni', blank=True, null=True)  # Field name made lowercase.
-    zamereni = models.FloatField(db_column='Zamereni', blank=True, null=True)  # Field name made lowercase.
-    presnost = models.FloatField(db_column='Presnost', blank=True, null=True)  # Field name made lowercase.
+class Delo(models.Model):
+    idgun = models.AutoField(db_column='idGun', primary_key=True)  # Field name made lowercase.
+    nazev = models.CharField(db_column='Nazev', max_length=100)  # Field name made lowercase.
+    tier = models.ForeignKey('Tier', models.DO_NOTHING, db_column='Tier', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
-        db_table = 'dela'
+        db_table = 'delo'
+
+
+class DeloHasNaboj(models.Model):
+    delo_iddelo = models.OneToOneField(Delo, models.DO_NOTHING, db_column='Delo_idDelo', primary_key=True)  # Field name made lowercase.
+    naboj_idnaboj = models.ForeignKey('Naboj', models.DO_NOTHING, db_column='Naboj_idNaboj')  # Field name made lowercase.
+    prubojnost = models.IntegerField(db_column='Prubojnost')  # Field name made lowercase.
+    poskozeni = models.IntegerField(db_column='Poskozeni')  # Field name made lowercase.
+    poradi = models.IntegerField(db_column='Poradi')  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'delo_has_naboj'
+        unique_together = (('delo_iddelo', 'naboj_idnaboj', 'poradi'),)
 
 
 class DjangoAdminLog(models.Model):
@@ -146,26 +146,37 @@ class DjangoSession(models.Model):
 
 
 class Kategorie(models.Model):
-    id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    nazev = models.CharField(db_column='Nazev', max_length=20, blank=True, null=True)  # Field name made lowercase.
+    idkategorie = models.AutoField(db_column='idKategorie', primary_key=True)  # Field name made lowercase.
+    nazev = models.CharField(db_column='Nazev', max_length=45)  # Field name made lowercase.
 
     class Meta:
         managed = False
         db_table = 'kategorie'
 
 
-class Naboje(models.Model):
-    id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    nazev = models.CharField(db_column='Nazev', max_length=5, blank=True, null=True)  # Field name made lowercase.
+class Nabijeni(models.Model):
+    idnabijeni = models.AutoField(db_column='idNabijeni', primary_key=True)  # Field name made lowercase.
+    nabijeni = models.FloatField(db_column='Nabijeni', blank=True, null=True)  # Field name made lowercase.
+    tank_has_gun_tank = models.ForeignKey('Tank', models.DO_NOTHING, db_column='Tank_has_Gun_Tank_ID')  # Field name made lowercase.
+    tank_has_gun_gun_idgun = models.ForeignKey(Delo, models.DO_NOTHING, db_column='Tank_has_Gun_Gun_idGun')  # Field name made lowercase.
 
     class Meta:
         managed = False
-        db_table = 'naboje'
+        db_table = 'nabijeni'
+
+
+class Naboj(models.Model):
+    idnaboj = models.AutoField(db_column='idNaboj', primary_key=True)  # Field name made lowercase.
+    nazev = models.CharField(db_column='Nazev', max_length=4, blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'naboj'
 
 
 class Narod(models.Model):
-    id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    nazev = models.CharField(db_column='Nazev', max_length=45, blank=True, null=True)  # Field name made lowercase.
+    idnarod = models.AutoField(db_column='idNarod', primary_key=True)  # Field name made lowercase.
+    nazev = models.CharField(db_column='Nazev', max_length=45)  # Field name made lowercase.
 
     class Meta:
         managed = False
@@ -173,43 +184,26 @@ class Narod(models.Model):
 
 
 class Status(models.Model):
-    id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    status = models.CharField(db_column='Status', max_length=10, blank=True, null=True)  # Field name made lowercase.
+    idstatus = models.AutoField(db_column='idStatus', primary_key=True)  # Field name made lowercase.
+    status = models.CharField(db_column='Status', max_length=45)  # Field name made lowercase.
 
     class Meta:
         managed = False
         db_table = 'status'
+
 
 class Tank(models.Model):
     id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
     nazev = models.CharField(db_column='Nazev', max_length=100, blank=True, null=True)  # Field name made lowercase.
     narod = models.ForeignKey(Narod, models.DO_NOTHING, db_column='Narod', blank=True, null=True)  # Field name made lowercase.
     tier = models.ForeignKey('Tier', models.DO_NOTHING, db_column='Tier', blank=True, null=True)  # Field name made lowercase.
-    naboj1 = models.CharField(db_column='Naboj1', max_length=5, blank=True, null=True)  # Field name made lowercase.
-    naboj2 = models.CharField(db_column='Naboj2', max_length=20, blank=True, null=True)  # Field name made lowercase.
-    naboj3 = models.CharField(db_column='Naboj3', max_length=5, blank=True, null=True)  # Field name made lowercase.
     kategorie = models.ForeignKey(Kategorie, models.DO_NOTHING, db_column='Kategorie', blank=True, null=True)  # Field name made lowercase.
-    status = models.CharField(db_column="Status", max_length=10, blank=True, null=True)  # Field name made lowercase.
-    prubojnost1 = models.IntegerField(db_column='Prubojnost1', blank=True, null=True)  # Field name made lowercase.
-    prubojnost2 = models.IntegerField(db_column='Prubojnost2', blank=True, null=True)  # Field name made lowercase.
-    prubojnost3 = models.IntegerField(db_column='Prubojnost3', blank=True, null=True)  # Field name made lowercase.
-    poskozeni1 = models.IntegerField(db_column='Poskozeni1', blank=True, null=True)  # Field name made lowercase.
-    poskozeni2 = models.IntegerField(db_column='Poskozeni2', blank=True, null=True)  # Field name made lowercase.
-    poskozeni3 = models.IntegerField(db_column='Poskozeni3', blank=True, null=True)  # Field name made lowercase.
-    presnost = models.FloatField(db_column='Presnost', blank=True, null=True)  # Field name made lowercase.
-    pocetran = models.IntegerField(db_column='PocetRan', blank=True, null=True)  # Field name made lowercase.
-    mezinabijeni = models.FloatField(db_column='MeziNabijeni', blank=True, null=True)  # Field name made lowercase.
-    nabijeni = models.FloatField(db_column='Nabijeni', blank=True, null=True)  # Field name made lowercase.
-    nabijeni2 = models.FloatField(db_column='Nabijeni2', blank=True, null=True)  # Field name made lowercase.
-    nabijeni3 = models.FloatField(db_column='Nabijeni3', blank=True, null=True)  # Field name made lowercase.
-    nabijeni4 = models.FloatField(db_column='Nabijeni4', blank=True, null=True)  # Field name made lowercase.
-    zamereni = models.FloatField(db_column='Zamereni', blank=True, null=True)  # Field name made lowercase.
+    status = models.ForeignKey(Status, models.DO_NOTHING, db_column='Status', blank=True, null=True)  # Field name made lowercase.
     rychlost = models.FloatField(db_column='Rychlost', blank=True, null=True)  # Field name made lowercase.
     couvani = models.FloatField(db_column='Couvani', blank=True, null=True)  # Field name made lowercase.
-    vykon = models.IntegerField(db_column='Vykon', blank=True, null=True)  # Field name made lowercase.
+    vykon = models.FloatField(db_column='Vykon', blank=True, null=True)  # Field name made lowercase.
     konetuna = models.FloatField(db_column='KoneTuna', blank=True, null=True)  # Field name made lowercase.
     otacenikorba = models.FloatField(db_column='OtaceniKorba', blank=True, null=True)  # Field name made lowercase.
-    otacenivez = models.CharField(db_column='OtaceniVez', max_length=20, blank=True, null=True)  # Field name made lowercase.
     elevace = models.FloatField(db_column='Elevace', blank=True, null=True)  # Field name made lowercase.
     deprese = models.FloatField(db_column='Deprese', blank=True, null=True)  # Field name made lowercase.
     korbapred = models.FloatField(db_column='Korbapred', blank=True, null=True)  # Field name made lowercase.
@@ -221,30 +215,35 @@ class Tank(models.Model):
     zivoty = models.IntegerField(db_column='Zivoty', blank=True, null=True)  # Field name made lowercase.
     naklad = models.FloatField(db_column='Naklad', blank=True, null=True)  # Field name made lowercase.
     hmotnost = models.FloatField(db_column='Hmotnost', blank=True, null=True)  # Field name made lowercase.
-    dohled = models.IntegerField(db_column='Dohled', blank=True, null=True)  # Field name made lowercase.
+    dohled = models.FloatField(db_column='Dohled', blank=True, null=True)  # Field name made lowercase.
     cena = models.CharField(db_column='Cena', max_length=45, blank=True, null=True)  # Field name made lowercase.
     vyzkum = models.IntegerField(db_column='Vyzkum', blank=True, null=True)  # Field name made lowercase.
     odkaz = models.CharField(db_column='Odkaz', max_length=100, blank=True, null=True)  # Field name made lowercase.
-    vicedel = models.CharField(db_column='ViceDel', max_length=1, blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
         db_table = 'tank'
-        unique_together = (('korbapred', 'korbabok', 'korbazad', 'vezpred', 'vezbok', 'vezzad', 'nazev'),)
+
+
+class TankHasGun(models.Model):
+    tank = models.OneToOneField(Tank, models.DO_NOTHING, db_column='Tank_ID', primary_key=True)  # Field name made lowercase.
+    gun_idgun = models.ForeignKey(Delo, models.DO_NOTHING, db_column='Gun_idGun')  # Field name made lowercase.
+    zamereni = models.FloatField(db_column='Zamereni')  # Field name made lowercase.
+    presnost = models.CharField(db_column='Presnost', max_length=45)  # Field name made lowercase.
+    autoloader = models.IntegerField(db_column='Autoloader')  # Field name made lowercase.
+    pocetran = models.IntegerField(db_column='PocetRan', blank=True, null=True)  # Field name made lowercase.
+    mezinabijeni = models.FloatField(db_column='MeziNabijeni', blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'tank_has_gun'
+        unique_together = (('tank', 'gun_idgun'),)
 
 
 class Tier(models.Model):
-    id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    cislo = models.CharField(db_column='Cislo', max_length=5, blank=True, null=True)  # Field name made lowercase.
+    idtier = models.AutoField(db_column='idTier', primary_key=True)  # Field name made lowercase.
+    tier = models.CharField(db_column='Tier', max_length=5)  # Field name made lowercase.
 
     class Meta:
         managed = False
         db_table = 'tier'
-
-class Comparison(models.Model):
-    id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    tankid = models.ForeignKey('Tank', models.DO_NOTHING, db_column='tankID')  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'comparison'
