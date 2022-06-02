@@ -35,7 +35,7 @@ function menu() {
         var a = document.createElement("A");
         a.setAttribute('href', 'tank/' + parsed[i].fields.odkaz)
         var td = document.createElement("TD");
-        if (parsed[i].fields.status == "premko") {
+        if (parsed[i].fields.status == 2) {
             td.setAttribute('id', 'premko');
         }
         a.innerHTML = parsed[i].fields.nazev;
@@ -86,6 +86,10 @@ function makeQuery() {
             }
         }
     }
+    makeAjaxRequest(nations, tiers, isPremium);
+}
+
+function makeAjaxRequest(nations, tiers, isPremium) {
     $.ajax({
         url: "",
         type: "GET",
