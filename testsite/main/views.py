@@ -2,7 +2,8 @@ from django.http.response import JsonResponse
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core import serializers
-from main.models import Tank, Kategorie, Narod, Tier
+from django.db import connection
+from main.models import Tank, Kategorie, Narod, Tier, TankHasGun
 
 
 def fixLink(allTankClasses):
@@ -66,7 +67,6 @@ def index(response):
     tankDestroyers = Tank.objects.filter(kategorie = int(tdId))
     artys = Tank.objects.filter(kategorie = int(artyId))
     if response.is_ajax():
-        # queries = [f"SELECT * FROM tank WHERE Kategorie = "{tankClass}" " for tankClass in tankClasses]
         nationsRequest = response.GET.get("n")
         nationsToExclude = findNationsToExclude(nationsRequest)
         tierRequest = response.GET.get("t")
@@ -80,17 +80,18 @@ def index(response):
             tankDestroyers = tankDestroyers.exclude(narod = nationToExclude)
             artys = artys.exclude(narod = nationToExclude)
         for tierToExclude in tiersToExclude:
-            lightTanks = lightTanks.exclude(tier = tierToExclude)
-            mediumTanks = mediumTanks.exclude(tier = tierToExclude)
-            heavyTanks = heavyTanks.exclude(tier = tierToExclude)
-            tankDestroyers = tankDestroyers.exclude(tier = tierToExclude)
-            artys = artys.exclude(tier = tierToExclude)
+            lightTanks = lightTanks.exclude(tanktier = tierToExclude)
+            mediumTanks = mediumTanks.exclude(tanktier = tierToExclude)
+            heavyTanks = heavyTanks.exclude(tanktier = tierToExclude)
+            tankDestroyers = tankDestroyers.exclude(tanktier = tierToExclude)
+            artys = artys.exclude(tanktier = tierToExclude)
         if accountTypeToExclude:
-            lightTanks = lightTanks.exclude(status = 1)
-            mediumTanks = mediumTanks.exclude(status = 1)
-            heavyTanks = heavyTanks.exclude(status = 1)
-            tankDestroyers = tankDestroyers.exclude(status = 1)
-            artys = artys.exclude(status = 1)
+            lightTanks = lightTanks.exclude(tankstatus = 1)
+            mediumTanks = mediumTanks.exclude(tankstatus = 1)
+            heavyTanks = heavyTanks.exclude(tankstatus = 1)
+            tankDestroyers = tankDestroyers.exclude(tankstatus = 1)
+            artys = artys.exclude(tankstatus = 1)
+        fixLink([lightTanks, mediumTanks, heavyTanks, tankDestroyers, artys])
         lightTanks = serializers.serialize("json", list(lightTanks))
         mediumTanks = serializers.serialize("json", list(mediumTanks))
         heavyTanks = serializers.serialize("json", list(heavyTanks))
@@ -102,19 +103,18 @@ def index(response):
         fixLink([lightTanks, mediumTanks, heavyTanks, tankDestroyers, artys])
         return render(response, "index.html", {"light": lightTanks, "medium": mediumTanks, "heavy": heavyTanks, "tds": tankDestroyers, "arty": artys})
 
+def returnGunTier(gun):
+    return gun.gun_idgun.nazev
+
 def tankDetail(response, link="#"):
     tankToShow = Tank.objects.filter(odkaz__icontains = link)[0]
     tankToShow.hmotnost = round(tankToShow.hmotnost / 1000, 1)
     tankToShow.naklad = round(tankToShow.naklad / 1000, 1)
-    index = 0
-    tanksFound = []
-    secondGuns = []
-    # for t in tanciky:
-    #     tankLink = t.odkaz
-    #     tankLinkName = tankLink.split("/")[-1].lower()
-    #     t.hmotnost /= 1000
-    #     t.naklad /= 1000
-    #     index += 1
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT Nazev, Tier FROM delo LEFT JOIN tank_has_gun ON idGun = Gun_idGun "
+         "LEFT JOIN Tier ON gunTier = idTier WHERE Tank_ID = %s ORDER BY Tier", [tankToShow.idtank])
+        columns = [col[0] for col in cursor.description]
+        gunsAvailableToTank = [dict(zip(columns, row)) for row in cursor.fetchall()]
     # if response.is_ajax():
     #     fetchedText = response.GET.get("text")
     #     if fetchedText is not None:
@@ -123,7 +123,7 @@ def tankDetail(response, link="#"):
     #             tankFound.odkaz = tankFound.odkaz.split("/")[-1].lower()
     #         tanksFound = serializers.serialize("json", tanksFound)
     #         return JsonResponse({"foundTanks": tanksFound}, status = 200)
-    return render(response, "tank.html", {"tank": tankToShow})
+    return render(response, "tank.html", {"tank": tankToShow, "guns": gunsAvailableToTank})
 
 
 #def compare(response):

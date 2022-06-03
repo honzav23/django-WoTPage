@@ -80,7 +80,7 @@ class AuthUserUserPermissions(models.Model):
 class Delo(models.Model):
     idgun = models.AutoField(db_column='idGun', primary_key=True)  # Field name made lowercase.
     nazev = models.CharField(db_column='Nazev', max_length=100)  # Field name made lowercase.
-    tier = models.ForeignKey('Tier', models.DO_NOTHING, db_column='Tier', blank=True, null=True)  # Field name made lowercase.
+    guntier = models.ForeignKey('Tier', models.DO_NOTHING, db_column='GunTier', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
@@ -193,12 +193,12 @@ class Status(models.Model):
 
 
 class Tank(models.Model):
-    id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    nazev = models.CharField(db_column='Nazev', max_length=100, blank=True, null=True)  # Field name made lowercase.
+    idtank = models.AutoField(db_column='idTank', primary_key=True)  # Field name made lowercase.
+    tanknazev = models.CharField(db_column='TankNazev', max_length=100, blank=True, null=True)  # Field name made lowercase.
     narod = models.ForeignKey(Narod, models.DO_NOTHING, db_column='Narod', blank=True, null=True)  # Field name made lowercase.
-    tier = models.ForeignKey('Tier', models.DO_NOTHING, db_column='Tier', blank=True, null=True)  # Field name made lowercase.
+    tanktier = models.ForeignKey('Tier', models.DO_NOTHING, db_column='TankTier', blank=True, null=True)  # Field name made lowercase.
     kategorie = models.ForeignKey(Kategorie, models.DO_NOTHING, db_column='Kategorie', blank=True, null=True)  # Field name made lowercase.
-    status = models.ForeignKey(Status, models.DO_NOTHING, db_column='Status', blank=True, null=True)  # Field name made lowercase.
+    tankstatus = models.ForeignKey(Status, models.DO_NOTHING, db_column='TankStatus', blank=True, null=True)  # Field name made lowercase.
     rychlost = models.FloatField(db_column='Rychlost', blank=True, null=True)  # Field name made lowercase.
     couvani = models.FloatField(db_column='Couvani', blank=True, null=True)  # Field name made lowercase.
     vykon = models.FloatField(db_column='Vykon', blank=True, null=True)  # Field name made lowercase.

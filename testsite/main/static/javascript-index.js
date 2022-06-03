@@ -35,10 +35,10 @@ function menu() {
         var a = document.createElement("A");
         a.setAttribute('href', 'tank/' + parsed[i].fields.odkaz)
         var td = document.createElement("TD");
-        if (parsed[i].fields.status == 2) {
+        if (parsed[i].fields.tankstatus == 2) {
             td.setAttribute('id', 'premko');
         }
-        a.innerHTML = parsed[i].fields.nazev;
+        a.innerHTML = parsed[i].fields.tanknazev;
         td.appendChild(a);
         tr.appendChild(td);
         tableBody.appendChild(tr);
