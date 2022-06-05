@@ -33,7 +33,6 @@ window.onload = setTimeout(loadVariables, 1000)  //loadVariables();
 
 function loadVariables() {
     Ikonanabijak = document.getElementById("Ikonanabijak");
-    console.log(Ikonanabijak);
     Ikonaventilace = document.getElementById("Ikonaventilace");
     Ikonabratri = document.getElementById("Ikonabratri");
     Ikonazamerovak = document.getElementById("Ikonazamerovak");

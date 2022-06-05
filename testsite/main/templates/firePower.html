@@ -4,83 +4,59 @@
     </tr>
     <tr>
         <th></th>
-        <td>{{tank.naboj1}}</td>
-        {% if tank.naboj2 != None %}
-            <td>{{tank.naboj2}}</td>
-        {% else %}
-            <td></td>
-        {% endif %}
-        {% if tank.naboj3 != None %}
-            <td>{{tank.naboj3}}</td>
-        {% else %}
-            <td></td>
-        {% endif %}
+        {% for shellProperty in shellProperties %}
+            <td>{{shellProperty.naboj_idnaboj.nazev}}</td>
+        {% endfor %}
     </tr>
     <tr>
         <th>Průbojnost:</th>
-        <td>{{tank.prubojnost1}} mm</td>
-        {% if tank.prubojnost2 != None %}
-            <td>{{tank.prubojnost2}} mm</td>
-        {% else %}
-            <td></td>
-        {% endif %}
-        {% if tank.prubojnost3 != None %}
-            <td>{{tank.prubojnost3}} mm</td>
-        {% else %}
-            <td></td>
-        {% endif %}
+        {% for shellProperty in shellProperties %}
+            <td>{{shellProperty.prubojnost}} mm</td>
+        {% endfor %}
     </tr>
     <tr>
         <th>Poškození:</th>
-        <td>{{tank.poskozeni1}}</td>
-        {% if tank.poskozeni2 != None %}
-            <td>{{tank.poskozeni2}}</td>
-        {% else %}
-            <td></td>
-        {% endif %}
-        {% if tank.poskozeni3 != None %}
-            <td>{{tank.poskozeni3}}</td>
-        {% else %}
-            <td></td>
-        {% endif %}
+        {% for shellProperty in shellProperties %}
+            <td>{{shellProperty.poskozeni}}</td>
+        {% endfor %}
     </tr>
-    {% if tank.pocetran > 0 and tank.nabijeni2 == 0 %}
+    {% if nonReloadingProperties.autoloader %}
         <tr>
             <th>Počet ran v zásobníku</th>
-            <td>{{tank.pocetran}}</td>
+            <td>{{nonReloadingProperties.pocetran}}</td>
             <td></td>
             <td></td>
         </tr>
         <tr>
             <th>Nabíjení mezi ranami:</th>
-            <td>{{tank.mezinabijeni}} s</td>
+            <td>{{nonReloadingProperties.mezinabijeni}} s</td>
             <td></td>
             <td></td>
         </tr>
         <tr>
             <th>Čas nabití zásobníku:</th>
-            <td id="nabijak">{{tank.nabijeni}}</td>
-            <td></td>
-            <td></td>
+            {% for reload in reloading %}
+            <td id="nabijak">{{reload.nabijeni}}</td>
+            {% endfor %}
         </tr>
 
     {% else %}
         <tr>
             <th>Čas nabíjení:</th>
-            <td id="nabijak">{{tank.nabijeni}}</td>
-            <td></td>
-            <td></td>
+            {% for reload in reloading %}
+            <td id="nabijak">{{reload.nabijeni}}</td>
+            {% endfor %}
         </tr>
     {% endif %}
     <tr>
         <th>Čas zaměření:</th>
-        <td id="zamerovak">{{tank.zamereni}}</td>
+        <td id="zamerovak">{{nonReloadingProperties.zamereni}}</td>
         <td></td>
         <td></td>
     </tr>
     <tr>
         <th>Přesnost:</th>
-        <td id="Presnost">{{tank.presnost}}</td>
+        <td id="Presnost">{{nonReloadingProperties.presnost}}</td>
         <td></td>
         <td></td>
     </tr>

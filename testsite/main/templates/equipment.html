@@ -21,7 +21,7 @@
             <input type="checkbox" id="Ikonazamerovak" onclick="calculate()" />
             <label for="Ikonazamerovak" class="nonBond"><img src="{% static 'gallery/zamerovak.png' %}"/></label>
         </div>
-        {% if tank.pocetran == 0 %}
+        {% if nonReloadingProperties.autoloader == 0 %}
         <div class="column">
             <input type="checkbox" id="Ikonanabijak" onclick="calculate()" />
             <label for="Ikonanabijak" class="nonBond"><img src="{% static 'gallery/nabijak.png' %}"/></label>

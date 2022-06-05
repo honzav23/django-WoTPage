@@ -27,24 +27,21 @@
         {% endif %}
     {% endif %}
 {% endif %}
-<p id="zamerovani">{{tank.zamereni}}</p>
-<p id="presnost">{{tank.presnost}}</p>
+<p id="zamerovani">{{nonReloadingProperties.zamereni}}</p>
+<p id="presnost">{{nonReloadingProperties.presnost}}</p>
 <p id="dohled">{{tank.dohled}}</p>
 
 <div class="obrazky">
    {% include "equipment.html" %}
    {% include "bonds.html" %}
 </div>
-  {% if tank.nabijeni2 == 0 %}
     {% include "firePower.html" %}
-  {% else %}
-    {% include "firePowerHybrid.html" %}
-  {% endif %}
+    {% comment %} {% include "firePowerHybrid.html" %} {% endcomment %}
 
     <form action=''>
         <select id='dela' class='vyber'>
             {% for gun in guns %}
-                <option class="moznost" value={{gun.Nazev}}>({{gun.Tier}}) {{gun.Nazev}}</option>
+                <option class="moznost" value={{gun.idGun}} {%if gun.Nazev == highestTierGun %} selected="selected" {% endif %}>({{gun.Tier}}) {{gun.Nazev}}</option>
             {% endfor %}
         </select>
     </form>
@@ -167,7 +164,7 @@
                 if (Object.keys(parsed).length > 0) {
                     var ul = document.createElement("UL");
                     for (i = 0; i < Object.keys(parsed).length; i++) {
-                        var name = parsed[i].fields.nazev;
+                        var name = parsed[i].fields.tanknazev;
                         var a = document.createElement('a');
                         var li = document.createElement("LI");
                         li.setAttribute('class', 'link');
