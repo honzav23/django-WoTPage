@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core import serializers
 from django.db import connection
-from main.models import Tank, Kategorie, Narod, Tier, TankHasGun
+from main.models import Tank, Kategorie, Narod, Tier, TankHasGun, Nabijeni, DeloHasNaboj
 
 
 def fixLink(allTankClasses):
@@ -107,23 +107,39 @@ def returnGunTier(gun):
     return gun.gun_idgun.nazev
 
 def tankDetail(response, link="#"):
-    tankToShow = Tank.objects.filter(odkaz__icontains = link)[0]
+    linkToFilter = "http://tanky/" + link
+    tankToShow = Tank.objects.filter(odkaz = linkToFilter)[0]
     tankToShow.hmotnost = round(tankToShow.hmotnost / 1000, 1)
     tankToShow.naklad = round(tankToShow.naklad / 1000, 1)
+
     with connection.cursor() as cursor:
-        cursor.execute("SELECT Nazev, Tier FROM delo LEFT JOIN tank_has_gun ON idGun = Gun_idGun "
-         "LEFT JOIN Tier ON gunTier = idTier WHERE Tank_ID = %s ORDER BY Tier", [tankToShow.idtank])
+        cursor.execute("SELECT Nazev, Tier, idGun FROM delo LEFT JOIN tank_has_gun ON idGun = Gun_idGun "
+         "LEFT JOIN Tier ON gunTier = idTier WHERE Tank_ID = %s ORDER BY idTier", [tankToShow.idtank])
         columns = [col[0] for col in cursor.description]
         gunsAvailableToTank = [dict(zip(columns, row)) for row in cursor.fetchall()]
-    # if response.is_ajax():
-    #     fetchedText = response.GET.get("text")
-    #     if fetchedText is not None:
-    #         tanksFound = Tank.objects.filter(nazev__icontains=fetchedText)
-    #         for tankFound in tanksFound:
-    #             tankFound.odkaz = tankFound.odkaz.split("/")[-1].lower()
-    #         tanksFound = serializers.serialize("json", tanksFound)
-    #         return JsonResponse({"foundTanks": tanksFound}, status = 200)
-    return render(response, "tank.html", {"tank": tankToShow, "guns": gunsAvailableToTank})
+
+    if response.is_ajax():
+        fetchedText = response.GET.get("text")
+        newGunToShow = response.GET.get("gunId")
+        if fetchedText is not None:
+            tanksFound = Tank.objects.filter(tanknazev__icontains=fetchedText)
+            for tankFound in tanksFound:
+                tankFound.odkaz = tankFound.odkaz.split("/")[-1].lower()
+            tanksFound = serializers.serialize("json", tanksFound)
+            return JsonResponse({"foundTanks": tanksFound}, status = 200)
+        elif newGunToShow is not None:
+            nonReloadingProperties = TankHasGun.objects.filter(tank = tankToShow.idtank, gun_idgun = newGunToShow)
+            reloading = Nabijeni.objects.filter(tank_has_gun_tank = tankToShow.idtank, tank_has_gun_gun_idgun = newGunToShow)
+            shellProperties = DeloHasNaboj.objects.filter(delo_iddelo = newGunToShow).order_by('poradi')
+            nonReloadingProperties = serializers.serialize("json", nonReloadingProperties)
+            return JsonResponse({"nonReloadingProperties": nonReloadingProperties}, status = 200)
+    highestTierGun = gunsAvailableToTank[-1]
+    nonReloadingProperties = TankHasGun.objects.get(tank = tankToShow.idtank, gun_idgun = highestTierGun["idGun"])
+    reloading = Nabijeni.objects.filter(tank_has_gun_tank = tankToShow.idtank, tank_has_gun_gun_idgun = highestTierGun["idGun"])
+    shellProperties = DeloHasNaboj.objects.filter(delo_iddelo = highestTierGun["idGun"]).order_by('poradi')
+    return render(response, "tank.html", {"tank": tankToShow, "guns": gunsAvailableToTank, "highestTierGun": highestTierGun["Nazev"],
+        "nonReloadingProperties": nonReloadingProperties, "reloading": reloading, "shellProperties": shellProperties
+    })
 
 
 #def compare(response):
