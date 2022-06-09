@@ -130,9 +130,14 @@ def tankDetail(response, link="#"):
         elif newGunToShow is not None:
             nonReloadingProperties = TankHasGun.objects.filter(tank = tankToShow.idtank, gun_idgun = newGunToShow)
             reloading = Nabijeni.objects.filter(tank_has_gun_tank = tankToShow.idtank, tank_has_gun_gun_idgun = newGunToShow)
-            shellProperties = DeloHasNaboj.objects.filter(delo_iddelo = newGunToShow).order_by('poradi')
             nonReloadingProperties = serializers.serialize("json", nonReloadingProperties)
-            return JsonResponse({"nonReloadingProperties": nonReloadingProperties}, status = 200)
+            reloading = serializers.serialize("json", reloading)
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT * FROM Delo_has_Naboj LEFT JOIN naboj ON Naboj_idNaboj = idNaboj WHERE Delo_idDelo = %s ORDER BY Poradi", [newGunToShow])
+                columns = [col[0] for col in cursor.description]
+                shellProperties = [dict(zip(columns, row)) for row in cursor.fetchall()]
+            return JsonResponse({"nonReloadingProperties": nonReloadingProperties, "reloading": reloading,
+                "shellProperties": shellProperties}, status = 200)
     highestTierGun = gunsAvailableToTank[-1]
     nonReloadingProperties = TankHasGun.objects.get(tank = tankToShow.idtank, gun_idgun = highestTierGun["idGun"])
     reloading = Nabijeni.objects.filter(tank_has_gun_tank = tankToShow.idtank, tank_has_gun_gun_idgun = highestTierGun["idGun"])

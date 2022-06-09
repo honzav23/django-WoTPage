@@ -140,7 +140,7 @@ h1 {
 #presnost {display:none;}
 .pozadi {position:absolute;left:150px;top:0px;}  
 h2 {cursor:url(gallery/gunsight.ico), default;}
-#nabijeni, #nabijeni2, #nabijeni3, #nabijeni4 {display:none;}
+.nabijeni {display:none;}
 #dohled {display:none;}
 #nabijak::after, #nabijak2:after, #nabijak3:after, #nabijak4:after {
 content:" s";}
