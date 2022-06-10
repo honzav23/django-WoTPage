@@ -137,15 +137,10 @@ h1 {
     width:100%;
     margin-right:70px;  
 }
-#presnost {display:none;}
 .pozadi {position:absolute;left:150px;top:0px;}  
 h2 {cursor:url(gallery/gunsight.ico), default;}
-.nabijeni {display:none;}
-#dohled {display:none;}
-#nabijak::after, #nabijak2:after, #nabijak3:after, #nabijak4:after {
-content:" s";}
-#zamerovani {display:none;}
-#zamerovak::after {content:" s";}
+#baseAimTime, #baseAccuracy, #baseView, .baseReloading {display:none;}
+#zamerovak::after, .nabijak::after {content:" s";}
 
 #binoOp::after {content:" m";}   
 

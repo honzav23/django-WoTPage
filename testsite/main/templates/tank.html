@@ -19,11 +19,11 @@
 
 
 {% for reload in reloading %}
-    <p class="nabijeni">{{reload.nabijeni}}</p>
+    <p class="baseReloading">{{reload.nabijeni}}</p>
 {% endfor %}
-<p id="zamerovani">{{nonReloadingProperties.zamereni}}</p>
-<p id="presnost">{{nonReloadingProperties.presnost}}</p>
-<p id="dohled">{{tank.dohled}}</p>
+<p id="baseAimTime">{{nonReloadingProperties.zamereni}}</p>
+<p id="baseAccuracy">{{nonReloadingProperties.presnost}}</p>
+<p id="baseView">{{tank.dohled}}</p>
 
 <div class="obrazky">
    {% include "equipment.html" %}
@@ -216,7 +216,7 @@
         }
         accuracyField.text(nonReloadingProperties.presnost)
         aimField.text(nonReloadingProperties.zamereni)
-        basicReloadFields = document.getElementsByClassName("nabijeni")
+        basicReloadFields = document.getElementsByClassName("nabijak")
         for (let i = 1; i < reloadingField.length; i++) {   // Fill all reloading fields with their values (tanks can have multiple reloadings)
             reloadingField.eq(i).text(reloading[i-1].fields.nabijeni)
             basicReloadFields[i-1].innerText = reloading[i-1].fields.nabijeni
@@ -233,9 +233,9 @@
                 damageFields.eq(i+1).text("")
             }
         }
-        document.getElementById("zamerovani").innerText = nonReloadingProperties.zamereni
-        document.getElementById("presnost").innerText = nonReloadingProperties.presnost
-        basicReloadingFields = document.getElementsByClassName("nabijeni")
+        document.getElementById("baseAimTime").innerText = nonReloadingProperties.zamereni
+        document.getElementById("baseAccuracy").innerText = nonReloadingProperties.presnost
+        basicReloadingFields = document.getElementsByClassName("baseReloading")
         for (let i = 0; i < basicReloadingFields.length; i++) {
             basicReloadingFields[i].innerText = reloading[i].fields.nabijeni 
         }

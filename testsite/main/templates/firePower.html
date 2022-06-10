@@ -36,7 +36,7 @@
         <tr>
             <th>Čas nabití zásobníku:</th>
             {% for reload in reloading %}
-            <td id="nabijak">{{reload.nabijeni}}</td>
+            <td class="nabijak">{{reload.nabijeni}}</td>
             {% endfor %}
         </tr>
 
@@ -44,7 +44,7 @@
         <tr>
             <th>Čas nabíjení:</th>
             {% for reload in reloading %}
-            <td id="nabijak">{{reload.nabijeni}}</td>
+            <td class="nabijak">{{reload.nabijeni}}</td>
             {% endfor %}
         </tr>
     {% endif %}
@@ -56,7 +56,7 @@
     </tr>
     <tr>
         <th>Přesnost:</th>
-        <td id="Presnost">{{nonReloadingProperties.presnost}}</td>
+        <td id="presnost">{{nonReloadingProperties.presnost}}</td>
         <td></td>
         <td></td>
     </tr>
