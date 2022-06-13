@@ -1,3 +1,20 @@
+/**
+ * Unchecks all checkboxes when loaded
+ */
+window.onload = function() {
+    nationCheckBoxes = document.getElementsByClassName("narod")
+    tierCheckBoxes = document.getElementsByClassName("tier")
+    premiumCheckBox = document.getElementById("prem")
+    prem.checked = false
+    for (nationCheckBox of nationCheckBoxes) {
+        nationCheckBox.checked = false
+    }
+    for (tierCheckBox of tierCheckBoxes) {
+        tierCheckBox.checked = false
+    }
+}
+
+
 function menu() {
     $(".narody").toggle();
     $(".tiery").toggle();
