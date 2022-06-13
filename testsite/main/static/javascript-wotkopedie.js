@@ -1,4 +1,3 @@
-
 function loadVariables() {
     let changingPropertiesFields = {    // Properties that can change values (reloading, aim time, accuracy, view)
         baseReloads: document.getElementsByClassName("baseReloading"),
@@ -17,7 +16,7 @@ function loadVariables() {
         ventBondIcon: $("#IkonaventilaceBond"),
         nabijak: document.getElementsByClassName("nabijak"),
         zamerovak: document.getElementById("zamerovak"),
-        presnost: document.getElementById("nabijak"),
+        presnost: document.getElementById("presnost"),
         dohled: document.getElementById("binoOp"),
         bino: document.getElementById("bino")
     }
@@ -114,7 +113,7 @@ function calculateForNonCrewEquipment(changingPropertiesFields, results) {
    return [reloads, aimTime, view, viewBino]
 }
 
-function showCalculatedValues(changingPropertiesFields, results) {
+function showCalculatedValues(changingPropertiesFields, results, accuracy) {
     let greenColor = "#3eb943"
     let reloads, aimTime, view, binoView
     [reloads, aimTime, view, binoView] = results
@@ -124,6 +123,8 @@ function showCalculatedValues(changingPropertiesFields, results) {
     changingPropertiesFields.dohled.style.backgroundColor = greenColor
     changingPropertiesFields.bino.innerText = binoView
     changingPropertiesFields.bino.style.backgroundColor = greenColor
+    changingPropertiesFields.presnost.innerText = accuracy
+    changingPropertiesFields.presnost.style.backgroundColor = greenColor
 
     for (let i = 0; i < reloads.length; i++) {
         changingPropertiesFields.nabijak[i].innerText = reloads[i]
@@ -132,12 +133,20 @@ function showCalculatedValues(changingPropertiesFields, results) {
     if (changingPropertiesFields.zamerovak.innerText == changingPropertiesFields.baseAimTime) {
         changingPropertiesFields.zamerovak.style.backgroundColor = "inherit"
     }
+    if (changingPropertiesFields.presnost.innerText == changingPropertiesFields.baseAccuracy) {
+        changingPropertiesFields.presnost.style.backgroundColor = "inherit"
+    }
     if (changingPropertiesFields.dohled.innerText == changingPropertiesFields.baseView) {
         changingPropertiesFields.dohled.style.backgroundColor = "inherit"
     }
     if (changingPropertiesFields.bino.innerText == changingPropertiesFields.baseView) {
         changingPropertiesFields.bino.style.backgroundColor = "inherit"
         changingPropertiesFields.bino.innerText = ""
+    }
+    if (reloads[0] == changingPropertiesFields.baseReloads[0].innerText) {
+        for (reload of changingPropertiesFields.nabijak) {
+            reload.style.backgroundColor = "inherit"
+        }
     }
 }
 
@@ -180,14 +189,5 @@ function calculate() {
             accuracy = ((parseFloat(accuracy) * 0.875) / (0.00375 * crewLevel + 0.5)).toFixed(2)
             results[0] = results[0].map(elem =>((elem * 0.875) / (0.00375 * crewLevel + 0.5)).toFixed(2))
     }
-    showCalculatedValues(changingPropertiesFields, results)
-    // for (let i = 0; i < bases.length; i++) {
-    //     out[i].innerHTML = results[i]
-    //     if (results[i] != bases[i]) {
-    //         out[i].style.backgroundColor = "#3eb943"
-    //     }
-    //     else {
-    //         out[i].style.backgroundColor = "inherit"
-    //     }
-    // }
+    showCalculatedValues(changingPropertiesFields, results, accuracy)
 }
