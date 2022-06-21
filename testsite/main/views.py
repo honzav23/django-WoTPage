@@ -11,7 +11,6 @@ def fixLink(allTankClasses):
         for tank in tankClass:
             tank.odkaz = tank.odkaz.split("/")[-1].lower()
 
-
 def jsonConvert(queries):
     allTankClasses = [Tank.objects.raw(query) for query in queries]
 

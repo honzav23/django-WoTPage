@@ -117,7 +117,11 @@
   </tr>
   <tr>
     <th>Cena:</th>
-    <td>{{tank.cena}}</td>
+    {% if tank.tankstatus.status == "premko"%}
+        <td>{{tank.cena}} goldů</td>
+    {% else %}
+        <td>{{tank.cena}}</td>
+    {% endif %}
   </tr>
   <tr>
     <th>Náklady na výzkum:</th>
@@ -161,9 +165,10 @@
             },
             success: function(response) {
                 var parsed = JSON.parse(response.foundTanks);
-                if (Object.keys(parsed).length > 0) {
+                let keysLength = Object.keys(parsed).length
+                if (keysLength > 0) {
                     var ul = document.createElement("UL");
-                    for (i = 0; i < Object.keys(parsed).length; i++) {
+                    for (i = 0; i < keysLength; i++) {
                         var name = parsed[i].fields.tanknazev;
                         var a = document.createElement('a');
                         var li = document.createElement("LI");
