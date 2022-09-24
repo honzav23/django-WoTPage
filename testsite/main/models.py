@@ -173,6 +173,8 @@ class Naboj(models.Model):
         managed = False
         db_table = 'naboj'
 
+    def natural_key(self):
+        return self.nazev
 
 class Narod(models.Model):
     idnarod = models.AutoField(db_column='idNarod', primary_key=True)  # Field name made lowercase.

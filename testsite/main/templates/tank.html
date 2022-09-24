@@ -8,6 +8,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
  
     <script src={% static 'javascript-wotkopedie.js' %}></script>
+    <script src={% static 'tankDetailAjax.js' %} defer></script>
 
 </head>
 <body>
@@ -29,14 +30,15 @@
    {% include "equipment.html" %}
    {% include "bonds.html" %}
 </div>
-    {% include "firePower.html" %}
-    {% comment %} {% include "firePowerHybrid.html" %} {% endcomment %}
+{% comment %} {% include "firePowerHybrid.html" %} {% endcomment %}
+{% include "firePower.html" %}
 
     <form action='' method="GET">
         {% csrf_token %}
         <select id='dela' class='vyber'>
             {% for gun in guns %}
-                <option class="moznost" value={{gun.idGun}} {%if gun.Nazev == highestTierGun %} selected="selected" {% endif %}>({{gun.Tier}}) {{gun.Nazev}}</option>
+                <option class="moznost" value={{gun.gun_idgun.idgun}} {%if gun.gun_idgun.nazev == highestTierGun %} selected="selected" {% endif %}>
+                    ({{gun.gun_idgun.guntier.tier}}) {{gun.gun_idgun.nazev}}</option>
             {% endfor %}
         </select>
     </form>
@@ -134,155 +136,5 @@
 </div>
 
 <a class="odkaz" href="/">←Zpět na úvodní stránku</a>
-<script>
-
-    //window.onload = checkTotalNumOfTanksInComparison()
-    window.onload = function() {
-        equipment = document.getElementsByClassName("equipment")
-        for (equip of equipment) {
-            equip.checked = false
-        }
-    }
-    function checkTotalNumOfTanksInComparison() {
-        tanksInComparisonNum = parseInt(document.getElementById("comparisonCount").innerHTML)
-        if (tanksInComparisonNum >= 2) {
-            document.getElementById("addToComparison").setAttribute("disabled", true)
-        }
-        else {
-            document.getElementById("addToComparison").removeAttribute("disabled")
-        }
-    }
-
-    $("#vyhledat").keyup(function() {
-        $("ul").remove();
-        if ($("#vyhledat").val().length > 0) {
-        $.ajax({
-            type: "GET",
-            url: "",
-            dataType: "json",
-            data: {
-                text : $("#vyhledat").val()
-            },
-            success: function(response) {
-                var parsed = JSON.parse(response.foundTanks);
-                let keysLength = Object.keys(parsed).length
-                if (keysLength > 0) {
-                    var ul = document.createElement("UL");
-                    for (i = 0; i < keysLength; i++) {
-                        var name = parsed[i].fields.tanknazev;
-                        var a = document.createElement('a');
-                        var li = document.createElement("LI");
-                        li.setAttribute('class', 'link');
-                        li.innerHTML = name;
-                        a.setAttribute('href', parsed[i].fields.odkaz);
-                        a.appendChild(li);
-                        ul.appendChild(a);
-                    }
-                    document.getElementById("tankList").appendChild(ul);
-                    $("ul").show();
-                }
-            }
-        });
-    }
-    else {
-        $("ul").fadeOut(1);
-    }
-    });
-
-    $("#dela").change(function(){
-        $.ajax({
-            type: "GET",
-            url: "",
-            dataType: "json",
-            data: {
-                gunId: $("#dela").val()
-            },
-            success: response => {
-                let parsedNonReloadingProps = JSON.parse(response.nonReloadingProperties)[0]
-                let parsedReloading = JSON.parse(response.reloading)
-                showNewGunInfo(parsedNonReloadingProps.fields, parsedReloading, response.shellProperties)
-            },
-            error: (xhr, status, error) => {
-                console.log(error)
-            }
-        })
-    });
-
-    
-    function showNewGunInfo(nonReloadingProperties, reloading, shellProperties) {
-        let aimField, accuracyField, reloadingField
-        let shellNameFields, penetrationFields, damageFields
-        [shellNameFields, penetrationFields, damageFields] = alignTables(shellProperties)
-        console.log(shellNameFields.length)
-        if (nonReloadingProperties.autoloader) {    // Gun is autoloading
-            reloadingField = $("tr").eq(7).children()
-            aimField = $("tr").eq(8).children().eq(1)
-            accuracyField = $("tr").eq(9).children().eq(1)
-        }
-        else {
-            reloadingField = $("tr").eq(5).children() 
-            aimField = $("tr").eq(6).children().eq(1)
-            accuracyField = $("tr").eq(7).children().eq(1)
-        }
-        accuracyField.text(nonReloadingProperties.presnost)
-        aimField.text(nonReloadingProperties.zamereni)
-        basicReloadFields = document.getElementsByClassName("nabijak")
-        for (let i = 1; i < reloadingField.length; i++) {   // Fill all reloading fields with their values (tanks can have multiple reloadings)
-            reloadingField.eq(i).text(reloading[i-1].fields.nabijeni)
-            basicReloadFields[i-1].innerText = reloading[i-1].fields.nabijeni
-        }
-        for (let i = 0; i < shellProperties.length; i++) {
-            shellNameFields.eq(i+1).text(shellProperties[i].Nazev)
-            penetrationFields.eq(i+1).text(shellProperties[i].Prubojnost + " mm")
-            damageFields.eq(i+1).text(shellProperties[i].Poskozeni)
-        }
-        document.getElementById("baseAimTime").innerText = nonReloadingProperties.zamereni
-        document.getElementById("baseAccuracy").innerText = nonReloadingProperties.presnost
-        basicReloadingFields = document.getElementsByClassName("baseReloading")
-        for (let i = 0; i < basicReloadingFields.length; i++) {
-            basicReloadingFields[i].innerText = reloading[i].fields.nabijeni 
-        }
-    }
-
-    function alignTables(shellProperties) {
-        let shellNameFields = $("tr").eq(2).children()
-        let penetrationFields = $("tr").eq(3).children()
-        let damageFields = $("tr").eq(4).children()
-        if (shellNameFields.length - 1 > shellProperties.length) {  // Remove shell names if previous gun had more shells than the current one
-            for (let i = shellProperties.length; i < shellNameFields.length; i++) {
-                shellNameFields.eq(i+1).text("")
-                penetrationFields.eq(i+1).text("")
-                damageFields.eq(i+1).text("")
-            }
-        }
-        if (shellNameFields.length - 1 < shellProperties.length) {
-            for (let i = 0; i < shellNameFields.length - shellProperties.length + 1; i++) {
-                $("tr").eq(2).append("<td></td>")
-                $("tr").eq(3).append("<td></td>")
-                $("tr").eq(4).append("<td></td>")
-            }
-        }
-        shellNameFields = $("tr").eq(2).children()
-        penetrationFields = $("tr").eq(3).children()
-        damageFields = $("tr").eq(4).children()
-        return [shellNameFields, penetrationFields, damageFields]
-    }
-
-    function addToComparison(tankId) {
-        $.ajax({
-            type: "GET",
-            url: "",
-            dataType: "json",
-            data: {
-                tankId: tankId,
-            },
-            success: response => {
-                console.log(response.msg)
-                document.getElementById("comparisonCount").innerHTML = response.totalTanksInComparison
-                checkTotalNumOfTanksInComparison()
-            }
-        })
-    }
-</script>
 </body>
 </html>

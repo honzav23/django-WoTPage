@@ -1,9 +1,10 @@
+from textwrap import indent
 from django.http.response import JsonResponse
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.core import serializers
 from django.db import connection
-from main.models import Tank, Kategorie, Narod, Tier, TankHasGun, Nabijeni, DeloHasNaboj
+from main.models import Tank, Kategorie, Narod, Tier, TankHasGun, Nabijeni, DeloHasNaboj, Delo
 
 
 def fixLink(allTankClasses):
@@ -91,11 +92,11 @@ def index(response):
             tankDestroyers = tankDestroyers.exclude(tankstatus = 1)
             artys = artys.exclude(tankstatus = 1)
         fixLink([lightTanks, mediumTanks, heavyTanks, tankDestroyers, artys])
-        lightTanks = serializers.serialize("json", list(lightTanks))
-        mediumTanks = serializers.serialize("json", list(mediumTanks))
-        heavyTanks = serializers.serialize("json", list(heavyTanks))
-        tankDestroyers = serializers.serialize("json", list(tankDestroyers))
-        artys = serializers.serialize("json", list(artys))
+        lightTanks = serializers.serialize("json", lightTanks)
+        mediumTanks = serializers.serialize("json", mediumTanks)
+        heavyTanks = serializers.serialize("json", heavyTanks)
+        tankDestroyers = serializers.serialize("json", tankDestroyers)
+        artys = serializers.serialize("json", artys)
         return JsonResponse({"light": lightTanks, "medium": mediumTanks, "heavy": heavyTanks, "td": tankDestroyers, "arty": artys}, status = 200)
 
     else:   # Initial page load (no filters applied)
@@ -107,41 +108,36 @@ def returnGunTier(gun):
 
 def tankDetail(response, link="#"):
     linkToFilter = "http://tanky/" + link
-    tankToShow = Tank.objects.filter(odkaz = linkToFilter)[0]
+    tankToShow = Tank.objects.get(odkaz = linkToFilter)
     tankToShow.hmotnost = round(tankToShow.hmotnost / 1000, 1)
     tankToShow.naklad = round(tankToShow.naklad / 1000, 1)
 
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT Nazev, Tier, idGun FROM delo LEFT JOIN tank_has_gun ON idGun = Gun_idGun "
-         "LEFT JOIN Tier ON gunTier = idTier WHERE Tank_ID = %s ORDER BY idTier", [tankToShow.idtank])
-        columns = [col[0] for col in cursor.description]
-        gunsAvailableToTank = [dict(zip(columns, row)) for row in cursor.fetchall()]
+    gunsAvailableToTank = TankHasGun.objects.filter(tank=tankToShow.idtank).order_by("gun_idgun__guntier__idtier")
 
     if response.is_ajax():
-        fetchedText = response.GET.get("text")
+        searchedTank = response.GET.get("text")
         newGunToShow = response.GET.get("gunId")
-        if fetchedText is not None:
-            tanksFound = Tank.objects.filter(tanknazev__icontains=fetchedText)
-            for tankFound in tanksFound:
+        if searchedTank is not None:
+            searchResults = Tank.objects.filter(tanknazev__icontains=searchedTank)
+            for tankFound in searchResults:
                 tankFound.odkaz = tankFound.odkaz.split("/")[-1].lower()
-            tanksFound = serializers.serialize("json", tanksFound)
-            return JsonResponse({"foundTanks": tanksFound}, status = 200)
+            searchResults = serializers.serialize("json", searchResults)
+            return JsonResponse({"foundTanks": searchResults}, status = 200)
+
         elif newGunToShow is not None:
             nonReloadingProperties = TankHasGun.objects.filter(tank = tankToShow.idtank, gun_idgun = newGunToShow)
             reloading = Nabijeni.objects.filter(tank_has_gun_tank = tankToShow.idtank, tank_has_gun_gun_idgun = newGunToShow)
             nonReloadingProperties = serializers.serialize("json", nonReloadingProperties)
             reloading = serializers.serialize("json", reloading)
-            with connection.cursor() as cursor:
-                cursor.execute("SELECT * FROM Delo_has_Naboj LEFT JOIN naboj ON Naboj_idNaboj = idNaboj WHERE Delo_idDelo = %s ORDER BY Poradi", [newGunToShow])
-                columns = [col[0] for col in cursor.description]
-                shellProperties = [dict(zip(columns, row)) for row in cursor.fetchall()]
+            shellProperties = DeloHasNaboj.objects.filter(delo_iddelo = newGunToShow).order_by('poradi')
+            shellProperties = serializers.serialize("json", shellProperties, indent = 1, use_natural_foreign_keys=True, use_natural_primary_keys=True)
             return JsonResponse({"nonReloadingProperties": nonReloadingProperties, "reloading": reloading,
                 "shellProperties": shellProperties}, status = 200)
-    highestTierGun = gunsAvailableToTank[-1]
-    nonReloadingProperties = TankHasGun.objects.get(tank = tankToShow.idtank, gun_idgun = highestTierGun["idGun"])
-    reloading = Nabijeni.objects.filter(tank_has_gun_tank = tankToShow.idtank, tank_has_gun_gun_idgun = highestTierGun["idGun"])
-    shellProperties = DeloHasNaboj.objects.filter(delo_iddelo = highestTierGun["idGun"]).order_by('poradi')
-    return render(response, "tank.html", {"tank": tankToShow, "guns": gunsAvailableToTank, "highestTierGun": highestTierGun["Nazev"],
+    highestTierGun = gunsAvailableToTank.last()
+    nonReloadingProperties = TankHasGun.objects.get(tank = tankToShow.idtank, gun_idgun = highestTierGun.gun_idgun)
+    reloading = Nabijeni.objects.filter(tank_has_gun_tank = tankToShow.idtank, tank_has_gun_gun_idgun = highestTierGun.gun_idgun)
+    shellProperties = DeloHasNaboj.objects.filter(delo_iddelo = highestTierGun.gun_idgun).order_by('poradi')
+    return render(response, "tank.html", {"tank": tankToShow, "guns": gunsAvailableToTank, "highestTierGun": highestTierGun.gun_idgun.nazev,
         "nonReloadingProperties": nonReloadingProperties, "reloading": reloading, "shellProperties": shellProperties
     })
 
