@@ -50,7 +50,8 @@ $("#vyhledat").keyup(() => {
     }
 });
 
-$("#dela").change(function(){
+$("#dela").change(() => {
+
     $.ajax({
         type: "GET",
         url: "",

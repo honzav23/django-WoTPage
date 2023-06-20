@@ -22,7 +22,7 @@ function menu() {
     $("#vyhledat").toggle();   
  }
  function searching() {
-     var input, filter, div, td, a, i;
+     let input, filter, div, td, a, i;
      input = document.getElementById("vyhledat");
      filter = input.value.toUpperCase();
      div = document.getElementById("vsechnyt");
@@ -37,21 +37,21 @@ function menu() {
      }
  }
  function showTanks(headline, classType, foundTanks) {
-    var parsed = JSON.parse(foundTanks);
-    var classa = document.getElementsByClassName(classType);
-    var tbl = document.createElement("TABLE");
-    var tr1 = document.createElement("TR");
-    var th = document.createElement("TH");
+    let parsed = JSON.parse(foundTanks);
+    let classa = document.getElementsByClassName(classType);
+    let tbl = document.createElement("TABLE");
+    let tr1 = document.createElement("TR");
+    let th = document.createElement("TH");
     th.innerHTML = headline;                                          
     tr1.appendChild(th);
-    var tableBody = document.createElement("TBODY");
+    let tableBody = document.createElement("TBODY");
     tableBody.appendChild(tr1);
     tbl.setAttribute('class', classType + "2");
     for (i = 0; i < Object.keys(parsed).length; i++) {
-        var tr = document.createElement("TR");
-        var a = document.createElement("A");
+        let tr = document.createElement("TR");
+        let a = document.createElement("A");
         a.setAttribute('href', 'tank/' + parsed[i].fields.odkaz)
-        var td = document.createElement("TD");
+        let td = document.createElement("TD");
         if (parsed[i].fields.tankstatus == 2) {
             td.setAttribute('id', 'premko');
         }
@@ -64,9 +64,9 @@ function menu() {
     classa[0].appendChild(tbl);
 }
 
- var tiers = [""];
- var nations = [""];
- var isPremium = "normal";
+ let tiers = [""];
+ let nations = [""];
+ let isPremium = "normal";
 
 function makeQuery() {
     if ($(this).is(":checked") && $(this).attr('class') == "narod") {
@@ -86,7 +86,7 @@ function makeQuery() {
     }
     else {
         if ($(this).attr('class') == "narod") {
-            var indexToRemove = nations.indexOf($(this).val());
+            let indexToRemove = nations.indexOf($(this).val());
             nations.splice(indexToRemove, 1);
             if (nations.length == 0) {
                 nations.push("");
@@ -96,7 +96,7 @@ function makeQuery() {
             isPremium = "normal";
         }
         else {
-            var indexToRemove = tiers.indexOf($(this).val());
+            let indexToRemove = tiers.indexOf($(this).val());
             tiers.splice(indexToRemove, 1);
             if (tiers.length == 0) {
                 tiers.push("");
