@@ -41,6 +41,9 @@ def findTiersToExclude(tiersToKeep: str):
 
     return excludedTiers
 
+def isAjax(response):
+    return response.headers.get("x-requested-with") == "XMLHttpRequest"
+
 def index(response):
     lightTanks = []
     mediumTanks = []
@@ -66,7 +69,14 @@ def index(response):
     heavyTanks = Tank.objects.filter(kategorie = int(heavyTankId))
     tankDestroyers = Tank.objects.filter(kategorie = int(tdId))
     artys = Tank.objects.filter(kategorie = int(artyId))
-    if response.is_ajax():
+
+    tanks = [lightTanks, mediumTanks, heavyTanks, tankDestroyers, artys]
+
+    nations = Narod.objects.all().order_by("ord")
+    tiers = Tier.objects.all()
+    categories = Kategorie.objects.all()
+
+    if isAjax(response):
         nationsRequest = response.GET.get("n")
         nationsToExclude = findNationsToExclude(nationsRequest)
         tierRequest = response.GET.get("t")
@@ -97,11 +107,12 @@ def index(response):
         heavyTanks = serializers.serialize("json", heavyTanks)
         tankDestroyers = serializers.serialize("json", tankDestroyers)
         artys = serializers.serialize("json", artys)
-        return JsonResponse({"light": lightTanks, "medium": mediumTanks, "heavy": heavyTanks, "td": tankDestroyers, "arty": artys}, status = 200)
+        categories = serializers.serialize("json", categories)
+        return JsonResponse({"light": lightTanks, "medium": mediumTanks, "heavy": heavyTanks, "td": tankDestroyers, "arty": artys, "categories": categories}, status = 200)
 
     else:   # Initial page load (no filters applied)
         fixLink([lightTanks, mediumTanks, heavyTanks, tankDestroyers, artys])
-        return render(response, "index.html", {"light": lightTanks, "medium": mediumTanks, "heavy": heavyTanks, "tds": tankDestroyers, "arty": artys})
+        return render(response, "index.html", {"tanks": tanks, "nations": nations, "tiers": tiers, "categories": categories})
 
 def returnGunTier(gun):
     return gun.gun_idgun.nazev
@@ -114,7 +125,7 @@ def tankDetail(response, link="#"):
 
     gunsAvailableToTank = TankHasGun.objects.filter(tank=tankToShow.idtank).order_by("gun_idgun__guntier__idtier")
 
-    if response.is_ajax():
+    if isAjax(response):
         searchedTank = response.GET.get("text")
         newGunToShow = response.GET.get("gunId")
         if searchedTank is not None:

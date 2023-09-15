@@ -22,46 +22,59 @@ function menu() {
     $("#vyhledat").toggle();   
  }
  function searching() {
-     let input, filter, div, td, a, i;
-     input = document.getElementById("vyhledat");
-     filter = input.value.toUpperCase();
+     let input, div, td, a, i;
+     input = document.getElementById("vyhledat").value.toUpperCase();
      div = document.getElementById("vsechnyt");
      td = div.getElementsByTagName("td");
      for (i = 0; i < td.length; i++) {
          a = td[i].getElementsByTagName("a")[0];
-         if (a.innerHTML.toUpperCase().search(filter) > -1) {
+         if (a.innerHTML.toUpperCase().search(input) > -1) {
              td[i].style.display = "";
          } else {
              td[i].style.display = "none";
          }
      }
  }
- function showTanks(headline, classType, foundTanks) {
-    let parsed = JSON.parse(foundTanks);
-    let classa = document.getElementsByClassName(classType);
-    let tbl = document.createElement("TABLE");
-    let tr1 = document.createElement("TR");
-    let th = document.createElement("TH");
-    th.innerHTML = headline;                                          
-    tr1.appendChild(th);
-    let tableBody = document.createElement("TBODY");
-    tableBody.appendChild(tr1);
-    tbl.setAttribute('class', classType + "2");
-    for (i = 0; i < Object.keys(parsed).length; i++) {
-        let tr = document.createElement("TR");
-        let a = document.createElement("A");
-        a.setAttribute('href', 'tank/' + parsed[i].fields.odkaz)
-        let td = document.createElement("TD");
-        if (parsed[i].fields.tankstatus == 2) {
-            td.setAttribute('id', 'premko');
-        }
-        a.innerHTML = parsed[i].fields.tanknazev;
-        td.appendChild(a);
-        tr.appendChild(td);
-        tableBody.appendChild(tr);
+ function showTanks(foundTanks) {
+    let parsedTanks = [JSON.parse(foundTanks.light), JSON.parse(foundTanks.medium), JSON.parse(foundTanks.heavy),
+                       JSON.parse(foundTanks.td), JSON.parse(foundTanks.arty)]
+
+    let tankCategories = JSON.parse(foundTanks.categories)
+    let tables = document.getElementsByTagName("table")
+
+    // Hide the original tables
+    for (let table of tables) {
+        table.style.display = "none"
     }
-    tbl.appendChild(tableBody);
-    classa[0].appendChild(tbl);
+    let parent = document.getElementById("tanksLocation")
+
+    for (let i = 0; i < tankCategories.length; i++) {
+        let table = document.createElement("table")
+        let tbody = document.createElement("tbody")
+        let headingRow = document.createElement("tr")
+        let heading = document.createElement("th")
+        heading.classList.add("text-center")
+        heading.innerText = tankCategories[i].fields.title
+        headingRow.appendChild(heading)
+        tbody.appendChild(headingRow)
+        
+        for (let tank of parsedTanks[i]) {
+            let tr = document.createElement("tr")
+            let td = document.createElement("td")
+            let a = document.createElement("A");
+            a.setAttribute('href', 'tank/' + tank.fields.odkaz)
+            if (tank.fields.tankstatus == 2) {
+                td.setAttribute('id', 'premko');
+            }
+            a.innerHTML = tank.fields.tanknazev
+            a.classList.add("link")
+            td.appendChild(a);
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+        }
+        table.appendChild(tbody)
+        parent.appendChild(table)
+    }
 }
 
  let tiers = [""];
@@ -115,12 +128,7 @@ function makeAjaxRequest(nations, tiers, isPremium) {
             n: nations.toString(), t: tiers.toString(), p: isPremium
         },
         success: function(response) {
-            $(".lehke2, .stredni2, .tezke2, .tdcka2, .artyny2").remove();
-            showTanks("Lehké tanky", "lehke", response.light);
-            showTanks("Střední tanky", "stredni", response.medium);
-            showTanks("Těžké tanky", "tezke", response.heavy);
-            showTanks("Stíhače tanků", "tdcka", response.td);
-            showTanks("Dělostřelectvo", "artyny", response.arty);
+           showTanks(response)
         }
     });
 }

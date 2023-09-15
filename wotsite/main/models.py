@@ -148,6 +148,7 @@ class DjangoSession(models.Model):
 class Kategorie(models.Model):
     idkategorie = models.AutoField(db_column='idKategorie', primary_key=True)  # Field name made lowercase.
     nazev = models.CharField(db_column='Nazev', max_length=45)  # Field name made lowercase.
+    title = models.CharField(db_column='Title', max_length=45)
 
     class Meta:
         managed = False
@@ -179,6 +180,7 @@ class Naboj(models.Model):
 class Narod(models.Model):
     idnarod = models.AutoField(db_column='idNarod', primary_key=True)  # Field name made lowercase.
     nazev = models.CharField(db_column='Nazev', max_length=45)  # Field name made lowercase.
+    ord = models.IntegerField(db_column='Ord', blank=True)
 
     class Meta:
         managed = False
