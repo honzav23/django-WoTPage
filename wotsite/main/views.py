@@ -129,7 +129,7 @@ def tankDetail(response, link="#"):
         searchedTank = response.GET.get("text")
         newGunToShow = response.GET.get("gunId")
         if searchedTank is not None:
-            searchResults = Tank.objects.filter(tanknazev__icontains=searchedTank)
+            searchResults = Tank.objects.filter(tanknazev__icontains=searchedTank)[:15]
             for tankFound in searchResults:
                 tankFound.odkaz = tankFound.odkaz.split("/")[-1].lower()
             searchResults = serializers.serialize("json", searchResults)

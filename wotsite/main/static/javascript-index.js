@@ -67,7 +67,6 @@ function menu() {
                 td.setAttribute('id', 'premko');
             }
             a.innerHTML = tank.fields.tanknazev
-            a.classList.add("link")
             td.appendChild(a);
             tr.appendChild(td);
             tbody.appendChild(tr);

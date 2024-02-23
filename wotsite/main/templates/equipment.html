@@ -1,30 +1,51 @@
 ﻿<!DOCTYPE html>
     {% load static %}
-    <div id='vypocty'>
-        <div class="column">
-            <input type="checkbox" class="equipment" id="Ikonabratri" onclick="calculate();" />
-            <label for="Ikonabratri" class="nonBond"><img src="{% static 'gallery/BIA.png' %}"/></label>
+        {% if nonReloadingProperties.autoloader == 0 %}
+            <div class="d-flex flex-column align-items-center">
+                <input type="checkbox" class="equipment" id="Ikonanabijak" onclick="calculate();changeFilter(this.parentNode)" />
+                <label for="Ikonanabijak" class="nonBond"><img src="{% static 'gallery/nabijak.png' %}"/></label>
+        
+                <input type="checkbox" id="IkonanabijakBond" disabled="disabled" onclick="calculate();changeFilter(this.parentNode)" />
+                <label for="IkonanabijakBond" class="bond" title="Lepší nabiják"><img src="{% static 'gallery/improvedEquipment.png' %}"/></label>
+            </div>
+        {% endif %} 
+        
+        <div class="d-flex flex-column align-items-center">
+            <input type="checkbox" class="equipment" id="Ikonazamerovak" onclick="calculate();changeFilter(this.parentNode)" />
+            <label for="Ikonazamerovak" class="nonBond"><img src="{% static 'gallery/zamerovak.png' %}"/></label>
+
+            <input type="checkbox" id="IkonazamerovakBond" disabled="disabled" onclick="calculate();changeFilter(this.parentNode)" />
+            <label for="IkonazamerovakBond" class="bond" title="Lepší zaměřovák"><img src="{% static 'gallery/improvedEquipment.png' %}"/></label>
         </div>
-        <div class="column">
-            <input type="checkbox" class="equipment" id="Ikonaventilace" onclick="calculate();" />
-            <label for="Ikonaventilace" class="nonBond"><img src="{% static 'gallery/ventilace.png' %}"/></label>
+
+        <div class="d-flex flex-column align-items-center">
+            <input type="checkbox" class="equipment" id="Ikonaoptika" onclick="calculate();changeFilter(this.parentNode)"/>
+            <label for="Ikonaoptika" class="nonBond"><img src="{% static 'gallery/optika.png' %}"/></label>
+        
+            <input type="checkbox" id="IkonaoptikaBond" disabled="disabled" onclick="calculate();changeFilter(this.parentNode)"/>
+            <label for="IkonaoptikaBond" class="bond" title="Lepší optika"><img src="{% static 'gallery/improvedEquipment.png' %}"/></label>
         </div>
-        <div class="column">
+
+        <div class="d-flex flex-column align-items-center">
             <input type="checkbox" class="equipment" id="Ikonabino" onclick="calculate();">
             <label for="Ikonabino" class="nonBond"><img src="{% static 'gallery/bino.png' %}"/></label>
         </div>
-        <div class="column">
-            <input type="checkbox" class="equipment" id="Ikonaoptika" onclick="calculate();changeFilter(IkonaoptikaBond, 1, Ikonaoptika)"/>
-            <label for="Ikonaoptika" class="nonBond"><img src="{% static 'gallery/optika.png' %}"/></label>
+
+        <div class="d-flex flex-column align-items-center">
+            <input type="checkbox" class="equipment" id="Ikonaventilace" onclick="calculate();changeFilter(this.parentNode)" />
+            <label for="Ikonaventilace" class="nonBond"><img src="{% static 'gallery/ventilace.png' %}"/></label>
+        
+            <input type="checkbox" id="IkonaventilaceBond" disabled="disabled" onclick="calculate();changeFilter(this.parentNode)" />
+            <label for="IkonaventilaceBond" class="bond" title="Lepší ventilace"><img src="{% static 'gallery/improvedEquipment.png' %}"/></label>
         </div>
-        <div class="column">
-            <input type="checkbox" class="equipment" id="Ikonazamerovak" onclick="calculate()" />
-            <label for="Ikonazamerovak" class="nonBond"><img src="{% static 'gallery/zamerovak.png' %}"/></label>
+
+        <div class="d-flex flex-column">
+            <input type="checkbox" class="equipment" id="Ikonabratri" onclick="calculate();" />
+            <label for="Ikonabratri" class="nonBond"><img src="{% static 'gallery/BIA.png' %}"/></label>
         </div>
-        {% if nonReloadingProperties.autoloader == 0 %}
-        <div class="column">
-            <input type="checkbox" class="equipment" id="Ikonanabijak" onclick="calculate()" />
-            <label for="Ikonanabijak" class="nonBond"><img src="{% static 'gallery/nabijak.png' %}"/></label>
-        </div>
-        {% endif %} 
+
+        
+            
+        
+        
 </html>

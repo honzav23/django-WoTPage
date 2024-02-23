@@ -6,18 +6,14 @@
   <meta charset="utf-8">
   <link rel="stylesheet" type="text/css" href="{% static 'styly-tank.css' %}">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
- 
-    <script src={% static 'javascript-wotkopedie.js' %}></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src={% static 'javascript-tank.js' %}></script>
     <script src={% static 'tankDetailAjax.js' %} defer></script>
 
 </head>
 <body>
 <h1>{{tank.tanknazev}}</h1>
-<div class="compare-button">
-    <button class="btn btn-primary" id="addToComparison" onclick="addToComparison({{ tank.id }})">Přidat do porovnání</button></a>
-</div>
-<div>Celkem <span id="comparisonCount">{{ totalTanksInComparison }}</span>/2 tanků v porovnání</div>
-
 
 {% for reload in reloading %}
     <p class="baseReloading">{{reload.nabijeni}}</p>
@@ -26,114 +22,121 @@
 <p id="baseAccuracy">{{nonReloadingProperties.presnost}}</p>
 <p id="baseView">{{tank.dohled}}</p>
 
-<div class="obrazky">
-   {% include "equipment.html" %}
-   {% include "bonds.html" %}
+<div class="container-fluid d-flex justify-content-lg-between justify-content-md-center justify-content-sm-center flex-wrap-reverse">
+        {% comment %} 
+            Fake elements to have one container centered and one at the end
+        {% endcomment %}
+        <div></div>
+        <div></div>
+        <div class="flex-grow-2 mt-5">
+            {% include "firePower.html" %}
+
+            <table id="mobilita">
+                <tr>
+                <tr><th colspan="4" id="vrsek">Mobilita</th></tr>
+                </tr>
+                <tr>
+                    <th>Maximální rychlost:</th>
+                    <td>{{tank.rychlost}} km/h</td>
+                </tr>
+                <tr>
+                    <th>Couvání:</th>
+                    <td>{{tank.couvani}} km/h</td>
+                </tr>
+                <tr>
+                    <th>Výkon:</th>
+                    <td>{{tank.vykon}} koní</td>
+                </tr>
+                <tr>
+                    <th>Počet koní / tuna:</th>
+                    <td>{{tank.konetuna}}</td>
+                </tr>
+                <tr>
+                    <th>Otáčení tanku:</th>
+                    <td>{{tank.otacenikorba}} °/s</td>
+                </tr>
+                <tr>
+                    <th>Elevace:</th>
+                    <td>{{tank.elevace}} °</td>
+                </tr>
+                <tr>
+                    <th>Deprese:</th>
+                    <td>-{{tank.deprese}} °</td>
+                </tr>
+                <tr>
+                    <th>Otáčení věže:</th>
+                    {% if tank.otacenivez == "Není věž" %}
+                        <td>TODO Add turret rotation property</td>
+                    {% else %}
+                        <td>TODO Add turret rotation property</td>
+                    {% endif %}
+                </tr>
+            </table>
+
+            <table id="zbytek">
+                <tr>
+                <tr><th colspan="4" id="vrsek">Zbytek</th></tr>
+                </tr>
+                <tr>
+                    <th>Pancíř korby:</th>
+                    <td>{{tank.korbapred}} mm / {{tank.korbabok}} mm / {{tank.korbazad}} mm</td>
+                </tr>
+                <tr>
+                <th>Pancíř věže:</th>
+                <td>{{tank.vezpred}} mm / {{tank.vezbok}} mm / {{tank.vezzad}} mm</td>
+            </tr>
+            <tr>
+                <th>Počet životů:</th>
+                <td>{{tank.zivoty}} </td>
+            </tr>
+            <tr>
+                <th>Hmotnost:</th>
+                <td>{{tank.hmotnost}} t</td>
+            </tr>
+            <tr>
+                <th>Maximální náklad:</th>
+                <td>{{tank.naklad}} t</td>
+            </tr>
+            <tr>
+                <th>Dohled:</th>
+                <td id="binoOp">{{tank.dohled}}</td>
+            </tr>
+            <tr>
+                <th>Binokulární dalekohled s vybavením:</th>
+                <td id="bino"></td>
+            </tr>
+            <tr>
+                <th>Cena:</th>
+                {% if tank.tankstatus.status == "premko"%}
+                    <td>{{tank.cena}} goldů</td>
+                {% else %}
+                    <td>{{tank.cena}}</td>
+                {% endif %}
+            </tr>
+            <tr>
+                <th>Náklady na výzkum:</th>
+                <td>{{tank.vyzkum}}</td>
+            </tr>
+            </table>
+        </div>
+
+        <div class="d-flex flex-column mt-5 justify-content-around align-items-center gap-2">
+            <div class="d-flex gap-2">
+                {% include "equipment.html" %}
+            </div>
+            {% include "searching.html" %}
+            <select id='dela' class='vyber'>
+                {% for gun in guns %}
+                    <option class="moznost" value={{gun.gun_idgun.idgun}} {%if gun.gun_idgun.nazev == highestTierGun %} selected="selected" {% endif %}>
+                        ({{gun.gun_idgun.guntier.tier}}) {{gun.gun_idgun.nazev}}</option>
+                {% endfor %}
+            </select>
+            
+            <div id="tankList">
+            </div>
+            
+            <a class="odkaz" href="/">←Zpět na úvodní stránku</a>
+        </div>
 </div>
-{% include "firePower.html" %}
-
-    <form action='' method="GET">
-        {% csrf_token %}
-        <select id='dela' class='vyber'>
-            {% for gun in guns %}
-                <option class="moznost" value={{gun.gun_idgun.idgun}} {%if gun.gun_idgun.nazev == highestTierGun %} selected="selected" {% endif %}>
-                    ({{gun.gun_idgun.guntier.tier}}) {{gun.gun_idgun.nazev}}</option>
-            {% endfor %}
-        </select>
-    </form>
-
-<table id="mobilita">
-    <tr>
-      <tr><th colspan="4" id="vrsek">Mobilita</th></tr>
-    </tr>
-    <tr>
-        <th>Maximální rychlost:</th>
-        <td>{{tank.rychlost}} km/h</td>
-    </tr>
-    <tr>
-      <th>Couvání:</th>
-      <td>{{tank.couvani}} km/h</td>
-  </tr>
-  <tr>
-      <th>Výkon:</th>
-      <td>{{tank.vykon}} koní</td>
-  </tr>
-  <tr>
-      <th>Počet koní / tuna:</th>
-      <td>{{tank.konetuna}}</td>
-  </tr>
-  <tr>
-      <th>Otáčení tanku:</th>
-      <td>{{tank.otacenikorba}} °/s</td>
-  </tr>
-  <tr>
-      <th>Elevace:</th>
-      <td>{{tank.elevace}} °</td>
-  </tr>
-  <tr>
-    <th>Deprese:</th>
-    <td>-{{tank.deprese}} °</td>
-  </tr>
-  <tr>
-    <th>Otáčení věže:</th>
-    {% if tank.otacenivez == "Není věž" %}
-        <td>TODO Add turret rotation property</td>
-    {% else %}
-        <td>TODO Add turret rotation property</td>
-    {% endif %}
-  </tr>
-</table>
-
-<table id="zbytek">
-    <tr>
-      <tr><th colspan="4" id="vrsek">Zbytek</th></tr>
-    </tr>
-    <tr>
-        <th>Pancíř korby:</th>
-        <td>{{tank.korbapred}} mm / {{tank.korbabok}} mm / {{tank.korbazad}} mm</td>
-    </tr>
-    <tr>
-      <th>Pancíř věže:</th>
-      <td>{{tank.vezpred}} mm / {{tank.vezbok}} mm / {{tank.vezzad}} mm</td>
-  </tr>
-  <tr>
-      <th>Počet životů:</th>
-      <td>{{tank.zivoty}} </td>
-  </tr>
-  <tr>
-      <th>Hmotnost:</th>
-      <td>{{tank.hmotnost}} t</td>
-  </tr>
-  <tr>
-      <th>Maximální náklad:</th>
-      <td>{{tank.naklad}} t</td>
-  </tr>
-  <tr>
-      <th>Dohled:</th>
-      <td id="binoOp">{{tank.dohled}}</td>
-  </tr>
-  <tr>
-    <th>Binokulární dalekohled s vybavením:</th>
-    <td id="bino"></td>
-  </tr>
-  <tr>
-    <th>Cena:</th>
-    {% if tank.tankstatus.status == "premko"%}
-        <td>{{tank.cena}} goldů</td>
-    {% else %}
-        <td>{{tank.cena}}</td>
-    {% endif %}
-  </tr>
-  <tr>
-    <th>Náklady na výzkum:</th>
-    <td>{{tank.vyzkum}}</td>
-  </tr>
-</table>
-
-{% include "searching.html" %}
-<div id="tankList">
-</div>
-
-<a class="odkaz" href="/">←Zpět na úvodní stránku</a>
 </body>
 </html>

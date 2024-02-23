@@ -1,63 +1,125 @@
-window.onload = function() {
-    equipment = document.getElementsByClassName("equipment")
-    for (equip of equipment) {
-        equip.checked = false
-    }
-}
-function checkTotalNumOfTanksInComparison() {
-    tanksInComparisonNum = parseInt(document.getElementById("comparisonCount").innerHTML)
-    if (tanksInComparisonNum >= 2) {
-        document.getElementById("addToComparison").setAttribute("disabled", true)
+let focusedElement = -1
+let visibleTopBound = -1
+let visibleBottomBound = -1
+
+document.getElementById("vyhledat").onkeyup = ((key) => {
+    if (key.key != "ArrowUp" && key.key != "ArrowDown" && key.key != "Enter") {
+        searchTanks()
     }
     else {
-        document.getElementById("addToComparison").removeAttribute("disabled")
+        // document.getElementById("vyhledat").blur()
+        changeSelectedElement(key)
     }
-}
+})
 
-$("#vyhledat").keyup(() => {
-    $("ul").remove();
-    if ($("#vyhledat").val().length > 0) {
+    window.onclick = () => {
+       removeTankList()
+    }
+
+
+function searchTanks() {
+    focusedElement = -1
+    removeTankList()
+    let val = document.getElementById("vyhledat").value
+    if (val) {
         $.ajax({
             type: "GET",
             url: "",
             dataType: "json",
             data: {
-                text : $("#vyhledat").val()
+                text : val
             },
             success: function(response) {
                 let parsed = JSON.parse(response.foundTanks);
                 let keysLength = Object.keys(parsed).length
                 if (keysLength > 0) {
                     let ul = document.createElement("UL");
+
+                    // So that the results overlap the content and not pushing it down
+                    ul.style.position = "absolute"
+                    ul.style.maxHeight = "420px"
+                    ul.style.overflowY = "scroll"
+                    ul.classList.add("list-group")
                     for (i = 0; i < keysLength; i++) {
                         let name = parsed[i].fields.tanknazev;
                         let a = document.createElement('a');
                         let li = document.createElement("LI");
-                        li.setAttribute('class', 'link');
+                        li.classList.add("list-group-item")
                         li.innerHTML = name;
                         a.setAttribute('href', parsed[i].fields.odkaz);
                         a.appendChild(li);
                         ul.appendChild(a);
                     }
                     document.getElementById("tankList").appendChild(ul);
-                    $("ul").show();
+                    ul.style.display = "block"
                 }
             }
         });
     }
-    else {
-        $("ul").fadeOut(1);
+}
+
+function changeSelectedElement(key) {
+    let tankList = document.getElementsByTagName("li")
+    if (tankList) {
+        if (focusedElement == -1 && key.key == "ArrowDown") {
+            tankList[0].style.backgroundColor = "#b0b0b0"
+            focusedElement = 0
+            visibleBottomBound = 9
+            visibleTopBound = 0
+        }
+        else if ((focusedElement == 0 || focusedElement == -1) && key.key == "ArrowUp") {
+            focusedElement = -1
+            tankList[0].style.backgroundColor = "white"
+        }
+        else if (key.key == "ArrowDown") {
+            tankList[focusedElement++].style.backgroundColor = "white"
+            tankList[focusedElement].style.backgroundColor = "#b0b0b0"
+        }
+        else if (key.key == "ArrowUp") {
+            tankList[focusedElement--].style.backgroundColor = "white"
+            tankList[focusedElement].style.backgroundColor = "#b0b0b0"
+        }
+        else if (key.key == "Enter") {
+            tankList[focusedElement].click()
+        }
+        scrollList(tankList)
     }
-});
+}
+function scrollList(tankList) {
+    let scrollHeight = tankList[0].clientHeight
+    let scrollableList = document.getElementsByTagName("ul")[0]
+    if (tankList.length > 10) {
 
-$("#dela").change(() => {
+        // Need to scroll down
+        if (focusedElement > visibleBottomBound) {
+            scrollableList.scrollBy(0, scrollHeight)
+            visibleBottomBound++
+            visibleTopBound++
+        }
 
+        // Need to scroll up
+        else if (focusedElement < visibleTopBound) {
+            scrollableList.scrollBy(0, -scrollHeight)
+            visibleBottomBound--
+            visibleTopBound--
+        }
+    }
+}
+
+function removeTankList() {
+    let ulElements = document.getElementsByTagName("ul")
+    if (ulElements.length) {
+        ulElements[0].remove()
+    }
+}
+
+document.getElementById("dela").onchange = (() => {
     $.ajax({
         type: "GET",
         url: "",
         dataType: "json",
         data: {
-            gunId: $("#dela").val()
+            gunId: document.getElementById("dela").value
         },
         success: response => {
             let parsedNonReloadingProps = JSON.parse(response.nonReloadingProperties)[0]
@@ -152,20 +214,4 @@ function alignTables(shellProperties) {
     penetrationFields = $("tr").eq(3).children()
     damageFields = $("tr").eq(4).children()
     return [shellNameFields, penetrationFields, damageFields]
-}
-
-function addToComparison(tankId) {
-    $.ajax({
-        type: "GET",
-        url: "",
-        dataType: "json",
-        data: {
-            tankId: tankId,
-        },
-        success: response => {
-            console.log(response.msg)
-            document.getElementById("comparisonCount").innerHTML = response.totalTanksInComparison
-            checkTotalNumOfTanksInComparison()
-        }
-    })
 }
